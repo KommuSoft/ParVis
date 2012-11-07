@@ -42,7 +42,10 @@ namespace ParallelVisualizer {
 			}
 		}
 		
-		public Edge () {
+		public Edge (ParallelAlgorithm node1, ParallelAlgorithm node2)
+		{
+			this.node1 = node1;
+			this.node2 = node2;
 		}
 
 		public bool IsNode (ParallelAlgorithm node) {

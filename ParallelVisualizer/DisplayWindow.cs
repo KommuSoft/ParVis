@@ -24,9 +24,15 @@ using Gtk;
 namespace ParallelVisualizer {
 
 	public class DisplayWindow : Window {
-		public DisplayWindow () : base(WindowType.Toplevel) {
+		
+		private ParallelStatePainter psp;
+		
+		public DisplayWindow () : base(WindowType.Toplevel)
+		{
+			this.psp = new ParallelStatePainter(new ParallelSimulation(new SampleParallelAlgorithm(), new SampleParallelAlgorithm (), new SampleParallelAlgorithm ()));
 			this.Title = "Parallel Visualizer";
 			this.Resize (640, 480);
+			this.Add(psp);
 			this.ShowAll ();
 		}
 		

@@ -28,11 +28,35 @@ namespace ParallelVisualizer {
 		private readonly List<ParallelAlgorithm> algorithms = new List<ParallelAlgorithm> ();
 		private readonly HashSet<Edge> edges = new HashSet<Edge> ();
 		
-		public ParallelSimulation () {
+		public List<ParallelAlgorithm> Algorithms {
+			get {
+				return this.algorithms;
+			}
 		}
 		
-		public void AddParallelAlgorithm () {
-			
+		public ParallelSimulation (params ParallelAlgorithm[] pas)
+		{
+			foreach(ParallelAlgorithm pa in pas) {
+				this.AddParallelAlgorithm(pa);
+			}
+		}
+		
+		public void AddParallelAlgorithm (ParallelAlgorithm pa)
+		{
+			this.algorithms.Add (pa);
+			foreach (Edge e in pa.Edges) {
+				this.edges.Add (e);
+			}
+		}
+		public void AddEdge (ParallelAlgorithm pa1, ParallelAlgorithm pa2) {
+			this.AddEdge(new Edge());
+		}
+		internal void AddEdge (Edge e) {
+			if(!this.edges.Contains(e)) {
+				this.edges.Add (e);
+				e.Node1.RegisterEdge (e);
+				e.Node2.RegisterEdge (e);
+			}
 		}
 		
 	}

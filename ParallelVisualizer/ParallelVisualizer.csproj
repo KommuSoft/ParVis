@@ -40,6 +40,9 @@
     <Compile Include="ParallelStatePainter.cs" />
     <Compile Include="ParallelSimulation.cs" />
     <Compile Include="SampleParallelAlgorithm.cs" />
+    <Compile Include="Utils.cs" />
+    <Compile Include="BlueprintStyle.cs" />
+    <Compile Include="BlueprintSlider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

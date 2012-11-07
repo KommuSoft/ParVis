@@ -27,10 +27,21 @@ namespace ParallelVisualizer {
 		
 		private readonly List<ParallelAlgorithm> algorithms = new List<ParallelAlgorithm> ();
 		private readonly HashSet<Edge> edges = new HashSet<Edge> ();
+		private int time = 0;
 		
 		public List<ParallelAlgorithm> Algorithms {
 			get {
 				return this.algorithms;
+			}
+		}
+		public IEnumerable<Edge> Edges {
+			get {
+				return this.edges;
+			}
+		}
+		public int Time {
+			get {
+				return this.time;
 			}
 		}
 		
@@ -49,10 +60,12 @@ namespace ParallelVisualizer {
 			}
 		}
 		public void AddEdge (ParallelAlgorithm pa1, ParallelAlgorithm pa2) {
-			this.AddEdge(new Edge());
+			this.AddEdge(new Edge(pa1,pa2));
 		}
-		internal void AddEdge (Edge e) {
-			if(!this.edges.Contains(e)) {
+		internal void AddEdge (Edge e)
+		{
+			if (!this.edges.Contains (e)) {
+				e.Simulator = this;
 				this.edges.Add (e);
 				e.Node1.RegisterEdge (e);
 				e.Node2.RegisterEdge (e);

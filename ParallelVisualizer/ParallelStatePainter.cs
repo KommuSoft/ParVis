@@ -28,38 +28,12 @@ namespace ParallelVisualizer {
 	[System.ComponentModel.ToolboxItem(true)]
 	public class ParallelStatePainter : DrawingArea {
 		
-		public readonly Color BluePrint = new Color (0.0d, 0.3647d, 0.5882d);
-		public readonly Color SoftWhite = new Color (0.5d, 0.6824d, 0.7961d);
-		public readonly Color HardWhite = new Color (0.96d, 0.96d, 0.96d);
-		private Pattern fillPattern = null;
 		public const double Offset = 10.0d;
-		public const double Thickness = 5.0d;
-		public const double Offset2 = Offset+Thickness;
+		public const double Offset2 = Offset+BlueprintStyle.Thickness;
 		public const double LineDelta = 10.0d;
 		public const double AlgorithmRadius = 37.0d;
-		public const int SkewDelta = 5;
 		private readonly Dictionary<ParallelAlgorithm,PointD> positions = new Dictionary<ParallelAlgorithm,PointD>();
 		private readonly ParallelSimulation ps;
-		
-		public Pattern FillPattern {
-			get {
-				if (this.fillPattern == null) {
-					using (ImageSurface imsu = new ImageSurface (Format.ARGB32, SkewDelta, SkewDelta)) {
-						using (Context ctx = new Context (imsu)) {
-							ctx.MoveTo (2.0d * SkewDelta, -SkewDelta);
-							ctx.LineTo (-SkewDelta, 2.0d * SkewDelta);
-							ctx.Color = HardWhite;
-							ctx.LineWidth = 1.0d;
-							ctx.Stroke ();
-							((IDisposable)ctx).Dispose ();
-						}
-						this.fillPattern = new SurfacePattern (imsu);
-						this.fillPattern.Extend = Extend.Repeat;
-					}
-				}
-				return this.fillPattern;
-			}
-		}
 		
 		public ParallelStatePainter (ParallelSimulation ps)
 		{
@@ -68,7 +42,7 @@ namespace ParallelVisualizer {
 			double gamma = 2.0d * Math.PI / ps.Algorithms.Count;
 			int i = 0;
 			foreach (ParallelAlgorithm pa in this.ps.Algorithms) {
-				this.positions.Add (pa, new PointD (0.5d + 0.375d * Math.Cos (i * gamma), 0.5d + 0.375d * Math.Sin (i * gamma)));
+				this.positions.Add (pa, new PointD (0.5d + 0.375d * Math.Sin (i * gamma), 0.5d + 0.375d * Math.Cos (i * gamma)));
 				i++;
 			}
 		}
@@ -87,10 +61,10 @@ namespace ParallelVisualizer {
 			int h = reg.Height;
 			Context ctx = Gdk.CairoHelper.Create (this.GdkWindow);
 			ctx.FillRule = FillRule.EvenOdd;
-			ctx.Color = BluePrint;
+			ctx.Color = BlueprintStyle.BluePrint;
 			ctx.Rectangle (0.0d, 0.0d, w, h);
 			ctx.Fill ();
-			ctx.Color = SoftWhite;
+			ctx.Color = BlueprintStyle.SoftWhite;
 			ctx.Rectangle (Offset, Offset, w - 2 * Offset, h - 2 * Offset);
 			ctx.ClosePath ();
 			ctx.Rectangle (Offset2, Offset2, w - 2 * Offset2, h - 2 * Offset2);
@@ -119,22 +93,43 @@ namespace ParallelVisualizer {
 				ctx.Arc (abs.X, abs.Y, AlgorithmRadius, 0.0d, 2.0d * Math.PI);
 				ctx.ClosePath ();
 				ctx.NewSubPath ();
-				ctx.Arc (abs.X, abs.Y, AlgorithmRadius - Thickness, 0.0d, 2.0d * Math.PI);
+				ctx.Arc (abs.X, abs.Y, AlgorithmRadius - BlueprintStyle.Thickness, 0.0d, 2.0d * Math.PI);
 				ctx.ClosePath ();
-				ctx.NewSubPath();
+				ctx.NewSubPath ();
 			}
-			ctx.Pattern = this.FillPattern;
+			ctx.Pattern = BlueprintStyle.FillPattern;
 			ctx.FillPreserve ();
-			ctx.Color = HardWhite;
-			ctx.Stroke();
+			ctx.Color = BlueprintStyle.HardWhite;
+			ctx.Stroke ();
+			foreach (KeyValuePair<ParallelAlgorithm, PointD> kvp in this.positions) {
+				PointD abs = new PointD (kvp.Value.X * w, kvp.Value.Y * h);
+				TextExtents te = ctx.TextExtents (kvp.Key.Name);
+				ctx.MoveTo (abs.X - 0.5d * te.Width, abs.Y + 0.5d * te.Height);
+				ctx.ShowText (kvp.Key.Name);
+			}
+			PointD pc, pd;
+			foreach (Edge e in this.ps.Edges) {
+				PointD pa = new PointD (this.positions[e.Node1].X,this.positions[e.Node1].Y);
+				pa.X *= w;
+				pa.Y *= h;
+				PointD pb = new PointD (this.positions[e.Node2].X, this.positions[e.Node2].Y);
+				pb.X *= w;
+				pb.Y *= h;
+				Utils.CutTowardsCenter (pa,pb, AlgorithmRadius, out pc, out pd);
+				ctx.MoveTo (pc);
+				ctx.LineTo (pd);
+			}
+			ctx.Stroke ();
 			((IDisposable)ctx.Target).Dispose ();
 			((IDisposable)ctx).Dispose ();
 			return true;
 		}
 
-		protected override void OnSizeAllocated (Gdk.Rectangle allocation) {
+		protected override void OnSizeAllocated (Gdk.Rectangle allocation)
+		{
 			base.OnSizeAllocated (allocation);
 			// Insert layout code here.
+			this.QueueDraw();
 		}
 
 		protected override void OnSizeRequested (ref Requisition requisition) {

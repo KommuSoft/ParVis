@@ -22,13 +22,17 @@ using System;
 using System.Collections.Generic;
 
 namespace ParallelVisualizer {
+	
+	using PostedMessage = Tuple<int,Message>;
 
 	public class Edge {
 		
 		private readonly ParallelAlgorithm node1;
 		private readonly ParallelAlgorithm node2;
-		private readonly Queue<Message> atob = new Queue<Message> ();
-		private readonly Queue<Message> btoa = new Queue<Message> ();
+		private readonly Queue<PostedMessage> atob = new Queue<PostedMessage> ();
+		private readonly Queue<PostedMessage> btoa = new Queue<PostedMessage> ();
+		private int delay = 3;
+		private ParallelSimulation simulator;
 		
 		public ParallelAlgorithm Node1 {
 			get {
@@ -39,6 +43,15 @@ namespace ParallelVisualizer {
 		public ParallelAlgorithm Node2 {
 			get {
 				return this.node2;
+			}
+		}
+		
+		public ParallelSimulation Simulator {
+			get {
+				return this.simulator;
+			}
+			internal set {
+				this.simulator = value;
 			}
 		}
 		
@@ -60,9 +73,30 @@ namespace ParallelVisualizer {
 			}
 		}
 
-		public void RouteMessage (Message message) {
-			//TODO: implement
+		public void RouteMessage (Message message)
+		{
+			if (message.Sender == Node1 && message.Receiver == Node2) {
+				this.atob.Enqueue (new PostedMessage (this.Simulator.Time, message));
+			}
+			else if (message.Sender == Node2 && message.Receiver == Node1) {
+				this.btoa.Enqueue (new PostedMessage (this.Simulator.Time, message));
+			}
 		}
+		
+		void deliverPost (Queue<PostedMessage> queue)
+		{
+			while (queue.Peek ().Item1 + delay <= Simulator.Time) {
+				Message pm = queue.Dequeue ().Item2;
+				pm.Receiver.ReciveMessage(pm);
+			}
+		}
+
+		public void DeliverPost ()
+		{
+			deliverPost (this.atob);
+			deliverPost (this.btoa);
+		}
+		
 	}
 }
 

@@ -26,13 +26,24 @@ namespace ParallelVisualizer {
 	public class DisplayWindow : Window {
 		
 		private ParallelStatePainter psp;
+		private BlueprintSlider slider;
+		private VBox vb = new VBox(false,0);
 		
 		public DisplayWindow () : base(WindowType.Toplevel)
 		{
-			this.psp = new ParallelStatePainter(new ParallelSimulation(new SampleParallelAlgorithm(), new SampleParallelAlgorithm (), new SampleParallelAlgorithm ()));
+			SampleParallelAlgorithm spa0 = new SampleParallelAlgorithm ();
+			SampleParallelAlgorithm spa1 = new SampleParallelAlgorithm ();
+			SampleParallelAlgorithm spa2 = new SampleParallelAlgorithm ();
+			ParallelSimulation ps = new ParallelSimulation (spa0, spa1, spa2);
+			this.slider = new BlueprintSlider ();
+			ps.AddEdge (spa0, spa1);
+			ps.AddEdge (spa0, spa2);
+			this.psp = new ParallelStatePainter (ps);
+			vb.PackStart (this.psp, true, true, 0x00);
+			vb.PackStart(this.slider,false,false,0x00);
 			this.Title = "Parallel Visualizer";
 			this.Resize (640, 480);
-			this.Add(psp);
+			this.Add(vb);
 			this.ShowAll ();
 		}
 		

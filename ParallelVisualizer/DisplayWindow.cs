@@ -31,20 +31,90 @@ namespace ParallelVisualizer {
 		
 		public DisplayWindow () : base(WindowType.Toplevel)
 		{
-			SampleParallelAlgorithm spa0 = new SampleParallelAlgorithm ();
-			SampleParallelAlgorithm spa1 = new SampleParallelAlgorithm ();
-			SampleParallelAlgorithm spa2 = new SampleParallelAlgorithm ();
-			ParallelSimulation ps = new ParallelSimulation (spa0, spa1, spa2);
+			MenuBar mb = new MenuBar ();
+			MenuItem mi_file = new MenuItem ("File");
+			Menu m_file = new Menu ();
+			MenuItem mi_file_opendll = new MenuItem ("Open algorithm library...");
+			MenuItem mi_file_openxml = new MenuItem ("Open configuration file...");
+			mi_file_openxml.Activated += openConfigFile;
+			mi_file_opendll.Activated += openLibFile;
+			MenuItem mi_file_quit = new MenuItem ("Quit");
+			mi_file_quit.Activated += delegate { Application.Quit (); };
+			MenuItem mi_edit = new MenuItem ("Edit");
+			Menu m_edit = new Menu ();
+			MenuItem mi_edit_move = new RadioMenuItem ("Move nodes");
+			MenuItem mi_edit_insp = new RadioMenuItem ("Inspect node");
+			mb.Add (mi_file);
+			mi_file.Submenu = m_file;
+			m_file.Add (mi_file_opendll);
+			m_file.Add (mi_file_openxml);
+			m_file.Add (new SeparatorMenuItem ());
+			m_file.Add (mi_file_quit);
+			mi_edit.Submenu = m_edit;
+			m_edit.Add (mi_edit_move);
+			m_edit.Add (mi_edit_insp);
+			mb.Add (mi_edit);
+			SampleParallelAlgorithm spa0 = new SampleParallelAlgorithm (null);
+			SampleParallelAlgorithm spa1 = new SampleParallelAlgorithm (spa0);
+			SampleParallelAlgorithm spa2 = new SampleParallelAlgorithm (spa1);
+			SampleParallelAlgorithm spa3 = new SampleParallelAlgorithm (spa2);
+			SampleParallelAlgorithm spa4 = new SampleParallelAlgorithm (spa3);
+			SampleParallelAlgorithm spa5 = new SampleParallelAlgorithm (spa1);
+			SampleParallelAlgorithm spa6 = new SampleParallelAlgorithm (spa5);
+			SampleParallelAlgorithm spa7 = new SampleParallelAlgorithm (spa6);
+			SampleParallelAlgorithm spa8 = new SampleParallelAlgorithm (spa7);
+			SampleParallelAlgorithm spa9 = new SampleParallelAlgorithm (spa8);
+			SampleParallelAlgorithm spa10 = new SampleParallelAlgorithm (spa6);
+			SampleParallelAlgorithm spa11 = new SampleParallelAlgorithm (spa10);
+			SampleParallelAlgorithm spa12 = new SampleParallelAlgorithm (spa11);
+			SampleParallelAlgorithm spa13 = new SampleParallelAlgorithm (spa12);
+			ParallelSimulation ps = new ParallelSimulation (spa0, spa1, spa2, spa3, spa4, spa5, spa6, spa7, spa8, spa9,
+			spa10, spa11, spa12, spa13);
 			this.slider = new BlueprintSlider ();
-			ps.AddEdge (spa0, spa1);
-			ps.AddEdge (spa0, spa2);
+			ps.AddEdgeSequence (spa0, spa1, spa2, spa3, spa4);
+			ps.AddEdgeSequence (spa1, spa5, spa6, spa7, spa8, spa9);
+			ps.AddEdgeSequence (spa6, spa10, spa11, spa12, spa13);
 			this.psp = new ParallelStatePainter (ps);
+			vb.PackStart (mb, false, false, 0x00);
 			vb.PackStart (this.psp, true, true, 0x00);
 			vb.PackStart(this.slider,false,false,0x00);
 			this.Title = "Parallel Visualizer";
 			this.Resize (640, 480);
 			this.Add(vb);
 			this.ShowAll ();
+		}
+		
+		private void openConfigFile (object s, EventArgs e)
+		{
+			FileChooserDialog fcd = new FileChooserDialog ("Open Config File...", this, FileChooserAction.Open);
+			fcd.TransientFor = this;
+			fcd.AddButton (Stock.Cancel, ResponseType.Cancel);
+			fcd.AddButton (Stock.Ok, ResponseType.Ok);
+			FileFilter ff = new FileFilter ();
+			ff.Name = "Config file (.xml)";
+			ff.AddMimeType("text/xml");
+			ff.AddMimeType ("application/xml");
+			fcd.AddFilter(ff);
+			int result = fcd.Run();
+			Console.WriteLine(result);
+			fcd.HideAll();
+			fcd.Dispose();
+		}
+		private void openLibFile (object s, EventArgs e)
+		{
+			FileChooserDialog fcd = new FileChooserDialog ("Open Library File...", this, FileChooserAction.Open);
+			fcd.TransientFor = this;
+			fcd.AddButton (Stock.Cancel, ResponseType.Cancel);
+			fcd.AddButton (Stock.Ok, ResponseType.Ok);
+			FileFilter ff = new FileFilter ();
+			ff.Name = "Dynamic Link Library (.dll,.exe)";
+			ff.AddPattern (@"*.dll");
+			ff.AddPattern (@"*.exe");
+			fcd.AddFilter (ff);
+			int result = fcd.Run ();
+			Console.WriteLine (result);
+			fcd.HideAll ();
+			fcd.Dispose ();
 		}
 		
 		public static void Main (string[] args) {

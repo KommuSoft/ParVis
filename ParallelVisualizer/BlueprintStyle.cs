@@ -26,6 +26,7 @@ namespace ParallelVisualizer {
 	public static class BlueprintStyle {
 		
 		public static readonly Color BluePrint = new Color (0.0d, 0.3647d, 0.5882d);
+		public static readonly Color BluePrintShadow = new Color (0.0d, 0.273525d, 0.44115d);
 		public static readonly Color SoftWhite = new Color (0.5d, 0.6824d, 0.7961d);
 		public static readonly Color HardWhite = new Color (0.96d, 0.96d, 0.96d);
 		public const double Thickness = 5.0d;

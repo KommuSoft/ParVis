@@ -43,6 +43,7 @@
     <Compile Include="Utils.cs" />
     <Compile Include="BlueprintStyle.cs" />
     <Compile Include="BlueprintSlider.cs" />
+    <Compile Include="TextMessage.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

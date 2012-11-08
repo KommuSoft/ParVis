@@ -109,17 +109,38 @@ namespace ParallelVisualizer {
 			}
 			PointD pc, pd;
 			foreach (Edge e in this.ps.Edges) {
-				PointD pa = new PointD (this.positions[e.Node1].X,this.positions[e.Node1].Y);
+				PointD pa = new PointD (this.positions[e.Node1].X, this.positions[e.Node1].Y);
 				pa.X *= w;
 				pa.Y *= h;
 				PointD pb = new PointD (this.positions[e.Node2].X, this.positions[e.Node2].Y);
 				pb.X *= w;
 				pb.Y *= h;
-				Utils.CutTowardsCenter (pa,pb, AlgorithmRadius, out pc, out pd);
+				Utils.CutTowardsCenter (pa, pb, AlgorithmRadius, out pc, out pd);
+				double dxr = pc.X - pd.X;
+				double dyr = pc.Y - pd.Y;
+				double r = Math.Sqrt (dxr * dxr + dyr * dyr);
 				ctx.MoveTo (pc);
 				ctx.LineTo (pd);
+				ctx.Stroke ();
+				ctx.Save ();
+				ctx.Translate (pc.X, pc.Y);
+				ctx.Rotate (Math.Atan2 (pb.Y - pa.Y, pb.X - pa.X));
+				foreach(Tuple<double,string> msg in e.GetUpwardsMessages()) {
+					TextExtents te = ctx.TextExtents (msg.Item2);
+					ctx.MoveTo (msg.Item1*(r-te.XAdvance), -te.YBearing);
+					ctx.ShowText (msg.Item2);
+				}
+				ctx.Restore ();
+				ctx.Save ();
+				ctx.Translate (pd.X, pd.Y);
+				ctx.Rotate (Math.Atan2 (pa.Y - pb.Y, pa.X - pb.X));
+				foreach (Tuple<double, string> msg in e.GetDownwardsMessages()) {
+					TextExtents te = ctx.TextExtents (msg.Item2);
+					ctx.MoveTo (msg.Item1 * (r - te.XAdvance), -te.YBearing);
+					ctx.ShowText (msg.Item2);
+				}
+				ctx.Restore ();
 			}
-			ctx.Stroke ();
 			((IDisposable)ctx.Target).Dispose ();
 			((IDisposable)ctx).Dispose ();
 			return true;

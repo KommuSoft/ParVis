@@ -83,6 +83,22 @@ namespace ParallelVisualizer {
 			}
 		}
 		
+		public IEnumerable<Tuple<double, string>> GetUpwardsMessages ()
+		{
+			foreach (PostedMessage pm in this.atob) {
+				double t = (this.Simulator.Time-pm.Item1)/this.delay;
+				yield return new Tuple<double, string>(t,pm.Item2.ToString());
+			}
+		}
+		
+		public IEnumerable<Tuple<double, string>> GetDownwardsMessages () {
+			foreach (PostedMessage pm in this.btoa) {
+				double t = (this.Simulator.Time - pm.Item1) / this.delay;
+				yield return new Tuple<double, string> (t, pm.Item2.ToString ());
+			}
+		}
+		
+		
 		void deliverPost (Queue<PostedMessage> queue)
 		{
 			while (queue.Peek ().Item1 + delay <= Simulator.Time) {

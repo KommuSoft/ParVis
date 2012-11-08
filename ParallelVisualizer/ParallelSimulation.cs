@@ -59,8 +59,15 @@ namespace ParallelVisualizer {
 				this.edges.Add (e);
 			}
 		}
-		public void AddEdge (ParallelAlgorithm pa1, ParallelAlgorithm pa2) {
-			this.AddEdge(new Edge(pa1,pa2));
+		public void AddEdge (ParallelAlgorithm pa1, ParallelAlgorithm pa2)
+		{
+			this.AddEdge (new Edge (pa1, pa2));
+		}
+		public void AddEdgeSequence (params ParallelAlgorithm[] pas)
+		{
+			for(int i = 0; i < pas.Length-1; i++) {
+				this.AddEdge(pas[i],pas[i+1]);
+			}
 		}
 		internal void AddEdge (Edge e)
 		{

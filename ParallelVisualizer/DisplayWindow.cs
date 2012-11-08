@@ -25,7 +25,7 @@ namespace ParallelVisualizer {
 
 	public class DisplayWindow : Window {
 		
-		private ParallelStatePainter psp;
+		private BlueprintParallelStatePainter psp;
 		private BlueprintSlider slider;
 		private VBox vb = new VBox(false,0);
 		
@@ -35,9 +35,9 @@ namespace ParallelVisualizer {
 			MenuItem mi_file = new MenuItem ("File");
 			Menu m_file = new Menu ();
 			MenuItem mi_file_opendll = new MenuItem ("Connect with algorithm library...");
+			mi_file_opendll.Activated += openLibFile;
 			MenuItem mi_file_openxml = new MenuItem ("Open configuration file...");
 			mi_file_openxml.Activated += openConfigFile;
-			mi_file_opendll.Activated += openLibFile;
 			MenuItem mi_file_quit = new MenuItem ("Quit");
 			mi_file_quit.Activated += delegate { Application.Quit (); };
 			MenuItem mi_edit = new MenuItem ("Edit");
@@ -64,7 +64,9 @@ namespace ParallelVisualizer {
 			StockManager.Lookup (Stock.MediaPlay, ref si);
 			//Image i = Image.NewFromIconName(Stock.MediaPlay,IconSize.Button);
 			ToolButton tb_opendll = new ToolButton (Stock.Connect);
+			tb_opendll.Clicked += openLibFile;
 			ToolButton tb_openxml = new ToolButton (Stock.Open);
+			tb_openxml.Clicked += openConfigFile;
 			ToolButton tb_move = new ToggleToolButton (Stock.Preferences);
 			ToolButton tb_insp = new ToggleToolButton (Stock.ZoomIn);
 			ToolButton tb_play = new ToolButton (Stock.MediaPlay);
@@ -74,7 +76,7 @@ namespace ParallelVisualizer {
 			tb.Add (new SeparatorToolItem ());
 			tb.Add (tb_move);
 			tb.Add (tb_insp);
-			tb.Add (new SeparatorToolItem());
+			tb.Add (new SeparatorToolItem ());
 			tb.Add (tb_play);
 			tb.Add (tb_pause);
 			SampleParallelAlgorithm spa0 = new SampleParallelAlgorithm (null);
@@ -97,10 +99,11 @@ namespace ParallelVisualizer {
 			ps.AddEdgeSequence (spa0, spa1, spa2, spa3, spa4);
 			ps.AddEdgeSequence (spa1, spa5, spa6, spa7, spa8, spa9);
 			ps.AddEdgeSequence (spa6, spa10, spa11, spa12, spa13);
-			this.psp = new ParallelStatePainter (ps);
+			this.psp = new BlueprintParallelStatePainter (ps);
 			vb.PackStart (mb, false, false, 0x00);
 			vb.PackStart (tb, false, false, 0x00);
 			vb.PackStart (this.psp, true, true, 0x00);
+			vb.PackStart (new BlueprintMediabar(), false, false, 0x00);
 			vb.PackStart(this.slider,false,false,0x00);
 			this.Title = "Parallel Visualizer";
 			this.Resize (640, 480);

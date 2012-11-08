@@ -47,6 +47,7 @@
     <Compile Include="SimulationSpecification.cs" />
     <Compile Include="NodeSpecification.cs" />
     <Compile Include="AlgorithmNameAttribute.cs" />
+    <Compile Include="BlueprintMediabar.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

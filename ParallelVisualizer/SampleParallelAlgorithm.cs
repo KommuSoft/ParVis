@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace ParallelVisualizer {
 	
+	[AlgorithmName("BroadcastAlgorithm")]
 	public class SampleParallelAlgorithm : ParallelAlgorithm {
 		
 		

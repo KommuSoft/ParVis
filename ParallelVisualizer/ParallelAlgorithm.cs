@@ -45,6 +45,11 @@ namespace ParallelVisualizer {
 				return this.edges.Values;
 			}
 		}
+		protected List<ParallelAlgorithm> Neighbours {
+			get {
+				return new List<ParallelAlgorithm> (this.edges.Keys);
+			}
+		}
 		
 		internal void RegisterEdges (IEnumerable<Edge> edges)
 		{

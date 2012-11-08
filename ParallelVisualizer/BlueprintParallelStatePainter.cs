@@ -26,7 +26,7 @@ using Cairo;
 namespace ParallelVisualizer {
 
 	[System.ComponentModel.ToolboxItem(true)]
-	public class ParallelStatePainter : DrawingArea {
+	public class BlueprintParallelStatePainter : DrawingArea {
 		
 		public const double Offset = 10.0d;
 		public const double Offset2 = Offset+BlueprintStyle.Thickness;
@@ -35,7 +35,7 @@ namespace ParallelVisualizer {
 		private readonly Dictionary<ParallelAlgorithm,PointD> positions = new Dictionary<ParallelAlgorithm,PointD>();
 		private readonly ParallelSimulation ps;
 		
-		public ParallelStatePainter (ParallelSimulation ps)
+		public BlueprintParallelStatePainter (ParallelSimulation ps)
 		{
 			// Insert initialization code here.
 			this.ps = ps;

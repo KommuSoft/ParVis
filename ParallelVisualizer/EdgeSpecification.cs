@@ -1,5 +1,5 @@
 //  
-//  SimulationSpecification.cs
+//  EdgeSpecification.cs
 //  
 //  Author:
 //       Willem Van Onsem <vanonsem.willem@gmail.com>
@@ -19,41 +19,47 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
-using System.Collections.Generic;
 using System.Xml.Serialization;
-
-namespace ParallelVisualizer.Specification {
+namespace ParallelVisualizer {
 	
-	[XmlRoot("Simulation")]
-	public class SimulationSpecification {
+	[XmlType("Edge")]
+	public class EdgeSpecification {
 		
-		private List<NodeSpecification> nodes;
-		private List<EdgeSpecification> edges;
+		private string node1;
+		private string node2;
+		private int delay;
 		
-		[XmlArray("Nodes")]
-		[XmlArrayItem("Node")]
-		public List<NodeSpecification> Nodes {
+		[XmlAttribute("Node1")]
+		public string Node1 {
 			get {
-				return this.nodes;
+				return this.node1;
 			}
 			set {
-				this.nodes = value;
+				this.node1 = value;
 			}
 		}
-		[XmlArray("Edges")]
-		[XmlArrayItem("Edge")]
-		public List<EdgeSpecification> Edges {
+		[XmlAttribute("Node2")]
+		public string Node2 {
 			get {
-				return this.edges;
+				return this.node2; 
 			}
 			set {
-				this.edges = value;
+				this.node2 = value;
+			}
+		}
+		[XmlAttribute("Delay")]
+		public int Delay {
+			get {
+				return this.delay;
+			}
+			set {
+				this.delay = value;
 			}
 		}
 		
-		public SimulationSpecification ()
+		public EdgeSpecification ()
 		{
 		}
-		
 	}
 }
+

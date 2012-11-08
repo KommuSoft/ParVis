@@ -1,5 +1,5 @@
 //  
-//  SimulationSpecification.cs
+//  DllLoader.cs
 //  
 //  Author:
 //       Willem Van Onsem <vanonsem.willem@gmail.com>
@@ -19,41 +19,35 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
+using System.Reflection;
+using System.Linq;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 
-namespace ParallelVisualizer.Specification {
-	
-	[XmlRoot("Simulation")]
-	public class SimulationSpecification {
+namespace ParallelVisualizer
+{
+	public class DllLoader {
 		
-		private List<NodeSpecification> nodes;
-		private List<EdgeSpecification> edges;
+		private readonly Dictionary<string,ConstructorInfo> loaded = new Dictionary<string, ConstructorInfo>();
 		
-		[XmlArray("Nodes")]
-		[XmlArrayItem("Node")]
-		public List<NodeSpecification> Nodes {
-			get {
-				return this.nodes;
-			}
-			set {
-				this.nodes = value;
-			}
-		}
-		[XmlArray("Edges")]
-		[XmlArrayItem("Edge")]
-		public List<EdgeSpecification> Edges {
-			get {
-				return this.edges;
-			}
-			set {
-				this.edges = value;
-			}
+		public DllLoader () {
 		}
 		
-		public SimulationSpecification ()
+		public void AnalyzeAssembly (Assembly assembly)
 		{
+			foreach (Type t in assembly.GetTypes ()) {
+				if (t.IsSubclassOf (typeof(ParallelAlgorithm)) && !t.IsAbstract && t.IsPublic) {
+					ConstructorInfo dc = t.GetConstructor (Type.EmptyTypes);
+					if (dc != null) {
+						foreach (AlgorithmNameAttribute ana in t.GetCustomAttributes (typeof(AlgorithmNameAttribute), false).Cast<AlgorithmNameAttribute> ()) {
+							if(!loaded.ContainsKey(ana.AlgorithmName)) {
+								loaded.Add(ana.AlgorithmName,dc);
+							}
+						}
+					}
+				}
+			}
 		}
 		
 	}
 }
+

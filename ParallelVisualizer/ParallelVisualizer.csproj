@@ -48,6 +48,9 @@
     <Compile Include="NodeSpecification.cs" />
     <Compile Include="AlgorithmNameAttribute.cs" />
     <Compile Include="BlueprintMediabar.cs" />
+    <Compile Include="EdgeSpecification.cs" />
+    <Compile Include="DllLoader.cs" />
+    <Compile Include="SimulationServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

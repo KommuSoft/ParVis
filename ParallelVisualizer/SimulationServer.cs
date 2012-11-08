@@ -1,5 +1,5 @@
 //  
-//  SimulationSpecification.cs
+//  SimulationServer.cs
 //  
 //  Author:
 //       Willem Van Onsem <vanonsem.willem@gmail.com>
@@ -19,41 +19,24 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
-using System.Collections.Generic;
-using System.Xml.Serialization;
+using System.Reflection;
 
-namespace ParallelVisualizer.Specification {
+namespace ParallelVisualizer {
 	
-	[XmlRoot("Simulation")]
-	public class SimulationSpecification {
+	public class SimulationServer {
 		
-		private List<NodeSpecification> nodes;
-		private List<EdgeSpecification> edges;
+		private DllLoader loader = new DllLoader();
 		
-		[XmlArray("Nodes")]
-		[XmlArrayItem("Node")]
-		public List<NodeSpecification> Nodes {
-			get {
-				return this.nodes;
-			}
-			set {
-				this.nodes = value;
-			}
-		}
-		[XmlArray("Edges")]
-		[XmlArrayItem("Edge")]
-		public List<EdgeSpecification> Edges {
-			get {
-				return this.edges;
-			}
-			set {
-				this.edges = value;
-			}
-		}
-		
-		public SimulationSpecification ()
+		public SimulationServer ()
 		{
+		}
+		
+		public void ConnectAlgorithmLibrary (string filename)
+		{
+			Assembly a = Assembly.LoadFile (filename);
+			loader.AnalyzeAssembly(a);
 		}
 		
 	}
 }
+

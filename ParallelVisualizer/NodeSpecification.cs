@@ -59,9 +59,12 @@ namespace ParallelVisualizer.Specification {
 			}
 		}
 		
-		public NodeSpecification ()
+		public NodeSpecification () {}
+		public NodeSpecification (string nodeName, string algorithmName, params string[] arguments)
 		{
+			this.nodeName = nodeName;
+			this.algorithmName = algorithmName;
+			this.args = args;
 		}
 	}
 }
-

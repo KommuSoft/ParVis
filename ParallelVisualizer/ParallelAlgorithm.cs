@@ -30,6 +30,7 @@ namespace ParallelVisualizer {
 		private readonly Dictionary<ParallelAlgorithm,Edge> edges = new Dictionary<ParallelAlgorithm, Edge> ();
 		private string name;
 		private static int nameDispatcher = 0x00;
+		private List<ParallelAlgorithm> neighbours = null;
 		
 		public int Id {
 			get {
@@ -47,7 +48,10 @@ namespace ParallelVisualizer {
 		}
 		protected List<ParallelAlgorithm> Neighbours {
 			get {
-				return new List<ParallelAlgorithm> (this.edges.Keys);
+				if (this.neighbours == null) {
+					this.neighbours = new List<ParallelAlgorithm> (this.edges.Keys);
+				}
+				return this.neighbours;
 			}
 		}
 		
@@ -59,6 +63,7 @@ namespace ParallelVisualizer {
 		}
 		internal void RegisterEdge (Edge e)
 		{
+			this.neighbours = null;
 			if (e.IsNode (this) && !this.edges.ContainsKey (e.Other (this))) {
 				this.edges.Add (e.Other (this), e);
 			}

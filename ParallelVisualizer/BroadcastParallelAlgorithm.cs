@@ -28,12 +28,15 @@ namespace ParallelVisualizer {
 		{
 		
 		}
-		public override IEnumerable<string> Steps ()
+		public override IEnumerable<int> Steps ()
 		{
 			int i = 0;
 			while (true) {
-				if ((i % 5) == 0 && other != null) {
-					this.SendMessage (new TextMessage (this, other, "Test"));
+				i++;
+				if ((i % 5) == 0) {
+					foreach (ParallelAlgorithm n in this.Neighbours) {
+						this.SendMessage (new TextMessage (this, n, "Test"));
+					}
 				}
 				yield return 0;
 			}

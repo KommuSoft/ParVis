@@ -69,9 +69,8 @@ namespace ParallelVisualizer {
 		{
 			base.OnExposeEvent (ev);
 			// Insert drawing code here.
-			Gdk.Rectangle reg = ev.Area;
-			int w = reg.Width;
-			int h = reg.Height;
+			int w, h;
+			this.GdkWindow.GetSize (out w, out h);
 			Context ctx = Gdk.CairoHelper.Create (this.GdkWindow);
 			ctx.FillRule = FillRule.EvenOdd;
 			ctx.Color = BlueprintStyle.BluePrint;

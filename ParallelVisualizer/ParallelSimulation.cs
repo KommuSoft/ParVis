@@ -26,7 +26,7 @@ namespace ParallelVisualizer {
 	public class ParallelSimulation {
 		
 		private readonly List<ParallelAlgorithm> algorithms = new List<ParallelAlgorithm> ();
-		private readonly List<IEnumerable<int>> executions = new List<IEnumerable<int>>();
+		private readonly List<IEnumerator<int>> executions = new List<IEnumerator<int>>();
 		private readonly HashSet<Edge> edges = new HashSet<Edge> ();
 		private readonly Dictionary<ParallelAlgorithm,RelativePosition> relativePositions = new Dictionary<ParallelAlgorithm, RelativePosition>();
 		private readonly Dictionary<ParallelAlgorithm,string[]> initArgs = new Dictionary<ParallelAlgorithm, string[]>();
@@ -67,6 +67,7 @@ namespace ParallelVisualizer {
 		public void ForwardTo (int t)
 		{
 			if (!initialized) {
+				this.initialized = true;
 				string[] args;
 				foreach (ParallelAlgorithm pa in this.algorithms) {
 					if (this.initArgs.TryGetValue (pa, out args)) {
@@ -75,11 +76,16 @@ namespace ParallelVisualizer {
 					else {
 						pa.Setup ();
 					}
-					this.executions.Add(pa.Steps());
+					this.executions.Add (pa.Steps ().GetEnumerator ());
 				}
 			}
-			for(; this.time < t; this.time++) {
-				
+			for (; this.time < t; this.time++) {
+				foreach (Edge e in this.Edges) {
+					e.DeliverPost ();
+				}
+				foreach (IEnumerator<int> i in this.executions) {
+					i.MoveNext ();
+				}
 			}
 		}
 		

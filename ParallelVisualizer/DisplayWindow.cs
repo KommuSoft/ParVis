@@ -19,6 +19,7 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
+using System.Threading;
 using Gtk;
 using System.Xml.Schema;
 
@@ -107,10 +108,26 @@ namespace ParallelVisualizer {
 			int result = fcd.Run();
 			fcd.HideAll();
 			if (result == (int)ResponseType.Ok) {
-				ss.ReadConfigFile (fcd.Filename);
+				try {
+					ss.ReadConfigFile (fcd.Filename);
+				}
+				catch(Exception ex) {
+					MessageDialog md = new MessageDialog(this,DialogFlags.DestroyWithParent,MessageType.Error,ButtonsType.Ok,true,ex.Message);
+					md.Run();
+					md.Destroy();
+				}
 				this.psp.Reload();
 			}
 			fcd.Dispose();
+			new Thread(new ThreadStart(eval)).Start();
+		}
+		private void eval ()
+		{
+			for (int i = 0; i < 65536; i++) {
+				System.Threading.Thread.Sleep (500);
+				this.ss.Simulator.ForwardTo (i);
+				this.psp.QueueDraw ();
+			}
 		}
 		protected override void OnHidden ()
 		{
@@ -135,7 +152,7 @@ namespace ParallelVisualizer {
 			fcd.AddFilter (ff);
 			int result = fcd.Run ();
 			fcd.HideAll ();
-			if(result == (int)ResponseType.Ok) {
+			if (result == (int)ResponseType.Ok) {
 				ss.ConnectAlgorithmLibrary (fcd.Filename);
 			}
 			fcd.Dispose ();

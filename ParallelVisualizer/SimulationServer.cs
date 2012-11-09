@@ -50,7 +50,14 @@ namespace ParallelVisualizer {
 		{
 			FileStream fs = File.Open (filename, FileMode.Open, FileAccess.Read);
 			XmlSerializer xs = new XmlSerializer (typeof(SimulationSpecification));
-			SimulationSpecification ss = (SimulationSpecification)xs.Deserialize (fs);
+			SimulationSpecification ss;
+			try {
+				ss = (SimulationSpecification)xs.Deserialize (fs);
+			}
+			catch {
+				fs.Close();
+				throw new ArgumentException("The file has no correct format: cannot interpret the node structure!");
+			}
 			ss.AddToSimulator(this.simulator,this.loader);
 			fs.Close();
 		}

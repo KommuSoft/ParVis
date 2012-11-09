@@ -51,6 +51,8 @@
     <Compile Include="EdgeSpecification.cs" />
     <Compile Include="DllLoader.cs" />
     <Compile Include="SimulationServer.cs" />
+    <Compile Include="RelativePosition.cs" />
+    <Compile Include="MediaMode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

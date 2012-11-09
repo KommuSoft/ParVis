@@ -28,6 +28,7 @@ namespace ParallelVisualizer.Specification {
 		
 		private string algorithmName;
 		private string nodeName;
+		private RelativePosition relPos;
 		private string[] args;
 		
 		[XmlAttribute("AlgorithmName")]
@@ -48,6 +49,15 @@ namespace ParallelVisualizer.Specification {
 				this.nodeName = value;
 			}
 		}
+		[XmlElement("RelativePosition")]
+		public RelativePosition RelativePosition {
+			get {
+				return this.relPos;
+			}
+			set {
+				this.relPos = value;
+			}
+		}
 		[XmlArray("Arguments")]
 		[XmlArrayItem("Argument")]
 		public string[] InitializationArguments {
@@ -60,10 +70,11 @@ namespace ParallelVisualizer.Specification {
 		}
 		
 		public NodeSpecification () {}
-		public NodeSpecification (string nodeName, string algorithmName, params string[] arguments)
+		public NodeSpecification (string nodeName, string algorithmName, RelativePosition relPos, params string[] arguments)
 		{
 			this.nodeName = nodeName;
 			this.algorithmName = algorithmName;
+			this.relPos = relPos;
 			this.args = args;
 		}
 	}

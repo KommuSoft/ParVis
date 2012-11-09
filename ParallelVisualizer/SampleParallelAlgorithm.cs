@@ -9,7 +9,7 @@ namespace ParallelVisualizer {
 		
 		private ParallelAlgorithm other;
 		
-		public SampleParallelAlgorithm (ParallelAlgorithm other)
+		public SampleParallelAlgorithm ()
 		{
 			this.other = null;
 		}

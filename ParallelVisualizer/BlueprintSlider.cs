@@ -28,7 +28,7 @@ namespace ParallelVisualizer
 		
 		public const double Offset = 10;
 		private int min = 1;
-		private int max = 15;
+		private int max = 2;
 		private int current = 10;
 		private const double shaft = 0.25d;
 		private double flapWidth = 1.0d;

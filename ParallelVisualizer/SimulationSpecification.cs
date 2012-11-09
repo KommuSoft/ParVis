@@ -55,5 +55,22 @@ namespace ParallelVisualizer.Specification {
 		{
 		}
 		
+		public void AddToSimulator (ParallelSimulation ps, DllLoader loader)
+		{
+			Dictionary<string, ParallelAlgorithm> pas = new Dictionary<string, ParallelAlgorithm> ();
+			foreach (NodeSpecification ns in this.Nodes) {
+				ParallelAlgorithm pa = loader.CreateAlgorithm (ns.AlgorithmName);
+				pa.Name = ns.NodeName;
+				pas.Add (pa.Name, pa);
+				ps.AddParallelAlgorithm (pa);
+				if(ns.RelativePosition != null) {
+					ps.AddRelativePosition(pa,ns.RelativePosition);
+				}
+			}
+			foreach(EdgeSpecification es in this.Edges) {
+				ps.AddEdge(pas[es.Node1],pas[es.Node2]);
+			}
+		}
+		
 	}
 }

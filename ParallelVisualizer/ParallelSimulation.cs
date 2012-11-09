@@ -27,7 +27,9 @@ namespace ParallelVisualizer {
 		
 		private readonly List<ParallelAlgorithm> algorithms = new List<ParallelAlgorithm> ();
 		private readonly HashSet<Edge> edges = new HashSet<Edge> ();
+		private readonly Dictionary<ParallelAlgorithm,RelativePosition> relativePositions = new Dictionary<ParallelAlgorithm, RelativePosition>();
 		private int time = 0;
+		private bool initialized = false;
 		
 		public List<ParallelAlgorithm> Algorithms {
 			get {
@@ -54,9 +56,16 @@ namespace ParallelVisualizer {
 		
 		public void AddParallelAlgorithm (ParallelAlgorithm pa)
 		{
+			pa.Id = this.algorithms.Count;
 			this.algorithms.Add (pa);
 			foreach (Edge e in pa.Edges) {
 				this.edges.Add (e);
+			}
+		}
+		public void ForwardTo ()
+		{
+			if(!initialized) {
+				
 			}
 		}
 		public void AddEdge (ParallelAlgorithm pa1, ParallelAlgorithm pa2)
@@ -65,9 +74,21 @@ namespace ParallelVisualizer {
 		}
 		public void AddEdgeSequence (params ParallelAlgorithm[] pas)
 		{
-			for(int i = 0; i < pas.Length-1; i++) {
-				this.AddEdge(pas[i],pas[i+1]);
+			for (int i = 0; i < pas.Length - 1; i++) {
+				this.AddEdge (pas[i], pas[i + 1]);
 			}
+		}
+		internal RelativePosition GetRelativePosition (ParallelAlgorithm pa)
+		{
+			RelativePosition res;
+			if(!this.relativePositions.TryGetValue(pa,out res)) {
+				return null;
+			}
+			return res;
+		}
+		internal void AddRelativePosition (ParallelAlgorithm pa, RelativePosition rp)
+		{
+			this.relativePositions.Add(pa,rp);
 		}
 		internal void AddEdge (Edge e)
 		{

@@ -67,7 +67,7 @@ namespace ParallelVisualizer {
 			get {
 				return this.name;
 			}
-			protected set {
+			protected internal set {
 				this.name = value;
 			}
 		}

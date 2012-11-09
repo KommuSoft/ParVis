@@ -39,12 +39,25 @@ namespace ParallelVisualizer {
 		{
 			// Insert initialization code here.
 			this.ps = ps;
+			this.Reload();
+		}
+		
+		public void Reload () {
 			double gamma = 2.0d * Math.PI / ps.Algorithms.Count;
 			int i = 0;
 			foreach (ParallelAlgorithm pa in this.ps.Algorithms) {
-				this.positions.Add (pa, new PointD (0.5d + 0.375d * Math.Sin (i * gamma), 0.5d + 0.375d * Math.Cos (i * gamma)));
+				if(!this.positions.ContainsKey(pa)) {
+					RelativePosition rp = ps.GetRelativePosition(pa);
+					if(rp != null) {
+						this.positions.Add (pa, new PointD (rp.X,rp.Y));
+					}
+					else {
+						this.positions.Add (pa, new PointD (0.5d + 0.375d * Math.Sin (i * gamma), 0.5d + 0.375d * Math.Cos (i * gamma)));
+					}
+				}
 				i++;
 			}
+			this.QueueDraw();
 		}
 
 		protected override bool OnButtonPressEvent (Gdk.EventButton ev) {

@@ -32,6 +32,15 @@ namespace ParallelVisualizer
 		public DllLoader () {
 		}
 		
+		public ParallelAlgorithm CreateAlgorithm (string algorithmName)
+		{
+			ConstructorInfo ci;
+			if (!this.loaded.TryGetValue (algorithmName, out ci)) {
+				throw new ArgumentException (string.Format ("Cannot find the algorithm \"{0}\". Did you forget to load the proper algorithm library?", algorithmName));
+			}
+			return (ParallelAlgorithm) ci.Invoke(new object[0x00]);
+		}
+		
 		public void AnalyzeAssembly (Assembly assembly)
 		{
 			foreach (Type t in assembly.GetTypes ()) {
@@ -39,7 +48,7 @@ namespace ParallelVisualizer
 					ConstructorInfo dc = t.GetConstructor (Type.EmptyTypes);
 					if (dc != null) {
 						foreach (AlgorithmNameAttribute ana in t.GetCustomAttributes (typeof(AlgorithmNameAttribute), false).Cast<AlgorithmNameAttribute> ()) {
-							if(!loaded.ContainsKey(ana.AlgorithmName)) {
+							if (!loaded.ContainsKey (ana.AlgorithmName)) {
 								loaded.Add(ana.AlgorithmName,dc);
 							}
 						}

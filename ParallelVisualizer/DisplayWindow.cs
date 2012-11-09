@@ -80,17 +80,16 @@ namespace ParallelVisualizer {
 			tb.Add (new SeparatorToolItem ());
 			tb.Add (tb_play);
 			tb.Add (tb_pause);
-			ParallelSimulation ps = new ParallelSimulation ();
-			this.psp = new BlueprintParallelStatePainter (ps);
+			this.psp = new BlueprintParallelStatePainter (this.ss.Simulator);
 			this.slider = new BlueprintSlider ();
 			vb.PackStart (mb, false, false, 0x00);
 			vb.PackStart (tb, false, false, 0x00);
 			vb.PackStart (this.psp, true, true, 0x00);
-			vb.PackStart (new BlueprintMediabar(), false, false, 0x00);
-			vb.PackStart(this.slider,false,false,0x00);
+			vb.PackStart (new BlueprintMediabar (), false, false, 0x00);
+			vb.PackStart (this.slider, false, false, 0x00);
 			this.Title = "Parallel Visualizer";
 			this.Resize (640, 480);
-			this.Add(vb);
+			this.Add (vb);
 			this.ShowAll ();
 		}
 		
@@ -109,8 +108,19 @@ namespace ParallelVisualizer {
 			fcd.HideAll();
 			if (result == (int)ResponseType.Ok) {
 				ss.ReadConfigFile (fcd.Filename);
+				this.psp.Reload();
 			}
 			fcd.Dispose();
+		}
+		protected override void OnHidden ()
+		{
+			base.OnHidden ();
+			this.Destroy();
+		}
+		public override void Destroy ()
+		{
+			base.Destroy ();
+			Gtk.Main.Quit();
 		}
 		private void openLibFile (object s, EventArgs e)
 		{
@@ -131,11 +141,16 @@ namespace ParallelVisualizer {
 			fcd.Dispose ();
 		}
 		
-		public static void Main (string[] args) {
+		public static void Main (string[] args)
+		{
 			Application.Init ();
-			using (DisplayWindow dw = new DisplayWindow()) {
+			Gdk.Threads.Init ();
+			Gdk.Threads.Enter ();
+			using (DisplayWindow dw = new DisplayWindow ()) {
+				
 				Application.Run ();
 			}
+			Gdk.Threads.Leave();
 		}
 	}
 }

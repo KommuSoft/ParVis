@@ -1,5 +1,5 @@
 //  
-//  SimulationServer.cs
+//  RelativePosition.cs
 //  
 //  Author:
 //       Willem Van Onsem <vanonsem.willem@gmail.com>
@@ -19,42 +19,42 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
-using System.IO;
-using System.Reflection;
 using System.Xml.Serialization;
-using ParallelVisualizer.Specification;
-
 namespace ParallelVisualizer {
 	
-	public class SimulationServer {
+	[XmlType("RelativePosition")]
+	public class RelativePosition {
 		
-		private readonly DllLoader loader = new DllLoader();
-		private readonly ParallelSimulation simulator = new ParallelSimulation();
+		private double x = 0.5d;
+		private double y = 0.5d;
 		
-		public ParallelSimulation Simulator {
+		[XmlAttribute("X")]
+		public double X {
 			get {
-				return this.simulator;
+				return this.x;
+			}
+			set {
+				this.x = Math.Max (0.0d, Math.Min (1.0d, value));
+			}
+		}
+		[XmlAttribute("Y")]
+		public double Y {
+			get {
+				return this.y;
+			}
+			set {
+				this.y = Math.Max (0.0d, Math.Min (1.0d, value));
 			}
 		}
 		
-		public SimulationServer ()
+		public RelativePosition ()
 		{
 		}
-		
-		public void ConnectAlgorithmLibrary (string filename)
+		public RelativePosition (double x, double y)
 		{
-			Assembly a = Assembly.LoadFile (filename);
-			loader.AnalyzeAssembly (a);
+			this.X = x;
+			this.Y = y;
 		}
-		public void ReadConfigFile (string filename)
-		{
-			FileStream fs = File.Open (filename, FileMode.Open, FileAccess.Read);
-			XmlSerializer xs = new XmlSerializer (typeof(SimulationSpecification));
-			SimulationSpecification ss = (SimulationSpecification)xs.Deserialize (fs);
-			ss.AddToSimulator(this.simulator,this.loader);
-			fs.Close();
-		}
-		
 	}
 }
 

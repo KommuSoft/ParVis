@@ -63,8 +63,11 @@ namespace ParallelVisualizer.Specification {
 				pa.Name = ns.NodeName;
 				pas.Add (pa.Name, pa);
 				ps.AddParallelAlgorithm (pa);
-				if(ns.RelativePosition != null) {
-					ps.AddRelativePosition(pa,ns.RelativePosition);
+				if (ns.RelativePosition != null) {
+					ps.AddRelativePosition (pa, ns.RelativePosition);
+				}
+				if(ns.InitializationArguments != null) {
+					ps.AddInitArguments(pa,ns.InitializationArguments);
 				}
 			}
 			foreach(EdgeSpecification es in this.Edges) {

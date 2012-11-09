@@ -77,9 +77,9 @@ namespace ParallelVisualizer {
 			this.name = "Algorithm"+(nameDispatcher++).ToString();
 		}
 		
-		public abstract void Setup (string[] args);
+		public abstract void Setup (params string[] args);
 		
-		public abstract IEnumerable<string> Steps ();
+		public abstract IEnumerable<int> Steps ();
 		
 		public abstract void PaintState (Context ctx);
 

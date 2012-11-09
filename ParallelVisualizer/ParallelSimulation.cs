@@ -26,8 +26,10 @@ namespace ParallelVisualizer {
 	public class ParallelSimulation {
 		
 		private readonly List<ParallelAlgorithm> algorithms = new List<ParallelAlgorithm> ();
+		private readonly List<IEnumerable<int>> executions = new List<IEnumerable<int>>();
 		private readonly HashSet<Edge> edges = new HashSet<Edge> ();
 		private readonly Dictionary<ParallelAlgorithm,RelativePosition> relativePositions = new Dictionary<ParallelAlgorithm, RelativePosition>();
+		private readonly Dictionary<ParallelAlgorithm,string[]> initArgs = new Dictionary<ParallelAlgorithm, string[]>();
 		private int time = 0;
 		private bool initialized = false;
 		
@@ -62,12 +64,29 @@ namespace ParallelVisualizer {
 				this.edges.Add (e);
 			}
 		}
-		public void ForwardTo ()
+		public void ForwardTo (int t)
 		{
-			if(!initialized) {
+			if (!initialized) {
+				string[] args;
+				foreach (ParallelAlgorithm pa in this.algorithms) {
+					if (this.initArgs.TryGetValue (pa, out args)) {
+						pa.Setup (args);
+					}
+					else {
+						pa.Setup ();
+					}
+					this.executions.Add(pa.Steps());
+				}
+			}
+			for(; this.time < t; this.time++) {
 				
 			}
 		}
+		
+		internal void AddInitArguments (ParallelAlgorithm pa, string[] initializationArguments) {
+			this.initArgs.Add(pa,initializationArguments);
+		}
+
 		public void AddEdge (ParallelAlgorithm pa1, ParallelAlgorithm pa2)
 		{
 			this.AddEdge (new Edge (pa1, pa2));

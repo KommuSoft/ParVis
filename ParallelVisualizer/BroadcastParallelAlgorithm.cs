@@ -4,12 +4,12 @@ using System.Collections.Generic;
 namespace ParallelVisualizer {
 	
 	[AlgorithmName("BroadcastAlgorithm")]
-	public class SampleParallelAlgorithm : ParallelAlgorithm {
+	public class BroadcastParallelAlgorithm : ParallelAlgorithm {
 		
 		
 		private ParallelAlgorithm other;
 		
-		public SampleParallelAlgorithm ()
+		public BroadcastParallelAlgorithm ()
 		{
 			this.other = null;
 		}
@@ -35,7 +35,7 @@ namespace ParallelVisualizer {
 				if ((i % 5) == 0 && other != null) {
 					this.SendMessage (new TextMessage (this, other, "Test"));
 				}
-				yield return string.Empty;
+				yield return 0;
 			}
 		}
 		

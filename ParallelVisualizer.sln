@@ -16,5 +16,8 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = ParallelVisualizer\ParallelVisualizer.csproj
+		Policies = $0
+		$0.StandardHeader = $1
+		$1.inheritsSet = GPLv3License
 	EndGlobalSection
 EndGlobal

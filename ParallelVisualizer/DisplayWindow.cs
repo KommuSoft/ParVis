@@ -28,6 +28,7 @@ namespace ParallelVisualizer {
 		
 		private BlueprintParallelStatePainter psp;
 		private BlueprintSlider slider;
+		private SimulationServer ss = new SimulationServer();
 		private VBox vb = new VBox(false,0);
 		
 		public DisplayWindow () : base(WindowType.Toplevel)
@@ -63,7 +64,6 @@ namespace ParallelVisualizer {
 			Toolbar tb = new Toolbar ();
 			StockItem si;
 			StockManager.Lookup (Stock.MediaPlay, ref si);
-			//Image i = Image.NewFromIconName(Stock.MediaPlay,IconSize.Button);
 			ToolButton tb_opendll = new ToolButton (Stock.Connect);
 			tb_opendll.Clicked += openLibFile;
 			ToolButton tb_openxml = new ToolButton (Stock.Open);
@@ -80,27 +80,9 @@ namespace ParallelVisualizer {
 			tb.Add (new SeparatorToolItem ());
 			tb.Add (tb_play);
 			tb.Add (tb_pause);
-			SampleParallelAlgorithm spa0 = new SampleParallelAlgorithm (null);
-			SampleParallelAlgorithm spa1 = new SampleParallelAlgorithm (spa0);
-			SampleParallelAlgorithm spa2 = new SampleParallelAlgorithm (spa1);
-			SampleParallelAlgorithm spa3 = new SampleParallelAlgorithm (spa2);
-			SampleParallelAlgorithm spa4 = new SampleParallelAlgorithm (spa3);
-			SampleParallelAlgorithm spa5 = new SampleParallelAlgorithm (spa1);
-			SampleParallelAlgorithm spa6 = new SampleParallelAlgorithm (spa5);
-			SampleParallelAlgorithm spa7 = new SampleParallelAlgorithm (spa6);
-			SampleParallelAlgorithm spa8 = new SampleParallelAlgorithm (spa7);
-			SampleParallelAlgorithm spa9 = new SampleParallelAlgorithm (spa8);
-			SampleParallelAlgorithm spa10 = new SampleParallelAlgorithm (spa6);
-			SampleParallelAlgorithm spa11 = new SampleParallelAlgorithm (spa10);
-			SampleParallelAlgorithm spa12 = new SampleParallelAlgorithm (spa11);
-			SampleParallelAlgorithm spa13 = new SampleParallelAlgorithm (spa12);
-			ParallelSimulation ps = new ParallelSimulation (spa0, spa1, spa2, spa3, spa4, spa5, spa6, spa7, spa8, spa9,
-			spa10, spa11, spa12, spa13);
-			this.slider = new BlueprintSlider ();
-			ps.AddEdgeSequence (spa0, spa1, spa2, spa3, spa4);
-			ps.AddEdgeSequence (spa1, spa5, spa6, spa7, spa8, spa9);
-			ps.AddEdgeSequence (spa6, spa10, spa11, spa12, spa13);
+			ParallelSimulation ps = new ParallelSimulation ();
 			this.psp = new BlueprintParallelStatePainter (ps);
+			this.slider = new BlueprintSlider ();
 			vb.PackStart (mb, false, false, 0x00);
 			vb.PackStart (tb, false, false, 0x00);
 			vb.PackStart (this.psp, true, true, 0x00);
@@ -124,8 +106,10 @@ namespace ParallelVisualizer {
 			ff.AddMimeType ("application/xml");
 			fcd.AddFilter(ff);
 			int result = fcd.Run();
-			Console.WriteLine(result);
 			fcd.HideAll();
+			if (result == (int)ResponseType.Ok) {
+				ss.ReadConfigFile (fcd.Filename);
+			}
 			fcd.Dispose();
 		}
 		private void openLibFile (object s, EventArgs e)
@@ -140,8 +124,10 @@ namespace ParallelVisualizer {
 			ff.AddPattern (@"*.exe");
 			fcd.AddFilter (ff);
 			int result = fcd.Run ();
-			Console.WriteLine (result);
 			fcd.HideAll ();
+			if(result == (int)ResponseType.Ok) {
+				ss.ConnectAlgorithmLibrary (fcd.Filename);
+			}
 			fcd.Dispose ();
 		}
 		
@@ -154,3 +140,24 @@ namespace ParallelVisualizer {
 	}
 }
 
+/*
+SampleParallelAlgorithm spa0 = new SampleParallelAlgorithm (null);
+SampleParallelAlgorithm spa1 = new SampleParallelAlgorithm (spa0);
+SampleParallelAlgorithm spa2 = new SampleParallelAlgorithm (spa1);
+SampleParallelAlgorithm spa3 = new SampleParallelAlgorithm (spa2);
+SampleParallelAlgorithm spa4 = new SampleParallelAlgorithm (spa3);
+SampleParallelAlgorithm spa5 = new SampleParallelAlgorithm (spa1);
+SampleParallelAlgorithm spa6 = new SampleParallelAlgorithm (spa5);
+SampleParallelAlgorithm spa7 = new SampleParallelAlgorithm (spa6);
+SampleParallelAlgorithm spa8 = new SampleParallelAlgorithm (spa7);
+SampleParallelAlgorithm spa9 = new SampleParallelAlgorithm (spa8);
+SampleParallelAlgorithm spa10 = new SampleParallelAlgorithm (spa6);
+SampleParallelAlgorithm spa11 = new SampleParallelAlgorithm (spa10);
+SampleParallelAlgorithm spa12 = new SampleParallelAlgorithm (spa11);
+SampleParallelAlgorithm spa13 = new SampleParallelAlgorithm (spa12);
+ParallelSimulation ps = new ParallelSimulation (spa0, spa1, spa2, spa3, spa4, spa5, spa6, spa7, spa8, spa9,
+spa10, spa11, spa12, spa13);
+ps.AddEdgeSequence (spa0, spa1, spa2, spa3, spa4);
+ps.AddEdgeSequence (spa1, spa5, spa6, spa7, spa8, spa9);
+ps.AddEdgeSequence (spa6, spa10, spa11, spa12, spa13); 
+*/

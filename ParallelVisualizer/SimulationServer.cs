@@ -19,7 +19,10 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
+using System.IO;
 using System.Reflection;
+using System.Xml.Serialization;
+using ParallelVisualizer.Specification;
 
 namespace ParallelVisualizer {
 	
@@ -34,7 +37,14 @@ namespace ParallelVisualizer {
 		public void ConnectAlgorithmLibrary (string filename)
 		{
 			Assembly a = Assembly.LoadFile (filename);
-			loader.AnalyzeAssembly(a);
+			loader.AnalyzeAssembly (a);
+		}
+		public void ReadConfigFile (string filename)
+		{
+			FileStream fs = File.Open (filename, FileMode.Open, FileAccess.Read);
+			XmlSerializer xs = new XmlSerializer (typeof(SimulationSpecification));
+			SimulationSpecification ss = (SimulationSpecification) xs.Deserialize (fs);
+			fs.Close();
 		}
 		
 	}

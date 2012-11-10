@@ -38,6 +38,49 @@ namespace ParallelVisualizer {
 			pc = new PointD (cx - dx, cy - dy);
 			pd = new PointD(cx + dx,cy + dy);
 		}
+		public Rectangle CreateConvexRectangle (params PointD[] points)
+		{
+			if (points == null || points.Length < 1) {
+				return null;
+			}
+			else {
+				double xm = points[0].X;
+				double xM = xm;
+				double ym = points[0].Y;
+				double yM = ym;
+				double x, y;
+				for (int i = 1; i < points.Length; i++) {
+					x = points[i].X;
+					y = points[i].Y;
+					xm = Math.Min (xm, x);
+					ym = Math.Min (ym, y);
+					xM = Math.Max (xM, x);
+					yM = Math.Max (yM, y);
+				}
+				return new Rectangle (xm, ym, xM - xm, yM - ym);
+			}
+		}
+		public Rectangle CreateConvexRectangle (IEnumerable<PointD> points)
+		{
+			if (points == null) {
+				return null;
+			} else {
+				double xm = double.PositiveInfinity;
+				double xM = double.NegativeInfinity;
+				double ym = double.PositiveInfinity;
+				double yM = double.NegativeInfinity;
+				double x, y;
+				foreach (PointD p in points) {
+					x = p.X;
+					y = p.Y;
+					xm = Math.Min (xm, x);
+					ym = Math.Min (ym, y);
+					xM = Math.Max (xM, x);
+					yM = Math.Max (yM, y);
+				}
+				return new Rectangle (xm, ym, xM - xm, yM - ym);
+			}
+		}
 		
 	}
 }

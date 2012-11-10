@@ -57,7 +57,15 @@ namespace ParallelVisualizer {
 				}
 				i++;
 			}
-			this.QueueDraw();
+			this.Repaint(null,null);
+		}
+		public void Repaint (object s, EventArgs e)
+		{
+			this.QueueDraw ();
+		}
+		public void RepaintEdges ()
+		{
+			
 		}
 
 		protected override bool OnButtonPressEvent (Gdk.EventButton ev) {

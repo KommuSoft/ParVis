@@ -121,14 +121,6 @@ namespace ParallelVisualizer {
 			fcd.Dispose();
 			new Thread(new ThreadStart(eval)).Start();
 		}
-		private void eval ()
-		{
-			for (int i = 0; i < 65536; i++) {
-				System.Threading.Thread.Sleep (500);
-				this.ss.Simulator.ForwardTo (i);
-				this.psp.QueueDraw ();
-			}
-		}
 		protected override void OnHidden ()
 		{
 			base.OnHidden ();

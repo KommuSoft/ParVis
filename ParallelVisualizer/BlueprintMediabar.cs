@@ -27,18 +27,21 @@ namespace ParallelVisualizer
 	{
 		
 		public const double Offset = 10.0d;
+		public const double Epsilon = 1e-6;
 		private double min = 0.0d;
-		private double max = 20.0d;
+		private double max = 1.0d;
 		private double current = 0.0d;
 		private double speed = 1.0d;
 		private MediaMode mode = MediaMode.Pause;
+		private event EventHandler currentChanged;
 		
 		public double Min {
 			get {
 				return this.min;
 			}
 			set {
-				this.min = value;
+				this.min = Math.Min(value,this.max-Epsilon);
+				this.QueueDraw();
 			}
 		}
 		public double Max {
@@ -46,7 +49,8 @@ namespace ParallelVisualizer
 				return this.max;
 			}
 			set {
-				this.max = value;
+				this.max = Math.Max (value, this.min + Epsilon);
+				this.QueueDraw ();
 			}
 		}
 		public double Current {
@@ -54,7 +58,8 @@ namespace ParallelVisualizer
 				return this.current;
 			}
 			set {
-				this.current = value;
+				this.current = Math.Max(this.min,Math.Min(max,value));
+				this.QueueDraw ();
 			}
 		}
 		public double Speed {
@@ -73,6 +78,14 @@ namespace ParallelVisualizer
 				this.mode = value;
 				this.checkMode ();
 				this.QueueDrawArea ((int)Math.Floor (Offset) - 1, 0, 35, 34);
+			}
+		}
+		public event EventHandler CurrentChanged {
+			add {
+				this.currentChanged += value;
+			}
+			remove {
+				this.currentChanged -= value;
 			}
 		}
 		
@@ -117,9 +130,18 @@ namespace ParallelVisualizer
 					this.current = this.max;
 					this.Mode = MediaMode.Pause;
 				}
-				this.QueueDraw();
+				this.QueueDraw ();
 				return true;
 			}
+		}
+		private void handleCurrent ()
+		{
+			this.OnCurrentChanged ();
+			if(currentChanged != null) {
+				this.currentChanged(this,EventArgs.Empty);
+			}
+		}
+		protected virtual void OnCurrentChanged () {
 		}
 		protected override bool OnExposeEvent (Gdk.EventExpose ev)
 		{

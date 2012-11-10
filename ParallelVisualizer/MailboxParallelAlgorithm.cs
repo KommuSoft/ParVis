@@ -1,5 +1,5 @@
 //  
-//  OrderedIdParallelAlgorithm.cs
+//  MailboxParallelAlgorithm.cs
 //  
 //  Author:
 //       Willem Van Onsem <vanonsem.willem@gmail.com>
@@ -19,35 +19,28 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
-using  System.Linq;
 using System.Collections.Generic;
 
 namespace ParallelVisualizer {
 
-	public abstract class OrderedIdParallelAlgorithm : ParallelAlgorithm {
+	public abstract class MailboxParallelAlgorithm : ParallelAlgorithm {
 		
-		public IEnumerable<ParallelAlgorithm> HigherNeighbours {
-			get {
-				return this.Neighbours.Where (x => x.Id > this.Id);
+		private readonly Dictionary<int,Queue<Message>> mailbox = new Dictionary<int, Queue<Message>> ();
+		
+		internal protected override void ReciveMessage (Message message) {
+			if (message == null) {
+				return;
 			}
+			Queue<Message> msgs;
+			if (!this.mailbox.TryGetValue (message.Sender, out  msgs)) {
+				msgs = new Queue<Message> ();
+				this.mailbox.Add (message.Sender, msgs);
+			}
+			msgs.Enqueue (message);
 		}
 
-		public IEnumerable<ParallelAlgorithm> LowerNeighbours {
-			get {
-				return this.Neighbours.Where (x => x.Id < this.Id);
-			}
-		}
-		
-		public IEnumerable<int> LowerIds {
-			get {
-				return this.LowerNeighbours.Select (x => x.Id);
-			}
-		}
-
-		public IEnumerable<int> HigherIds {
-			get {
-				return this.HigherNeighbours.Select (x => x.Id);
-			}
+		protected bool HasReceivedMessages (Type messageType, IEnumerable<ParallelAlgorithm> ids) {
+			return false;
 		}
 		
 	}

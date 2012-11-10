@@ -26,6 +26,23 @@ namespace ParallelVisualizer {
 	[AlgorithmName("ProductSumVariable")]
 	public class ProductSumVariableParallelAlgorithm : ParallelAlgorithm {
 		#region implemented abstract members of ParallelVisualizer.ParallelAlgorithm
+		public override string SourceCode {
+			get {
+return @"WaitForAllNeighbors(id > this_id);
+res = (1,1);
+\for id \in larger_neighbour_ids
+res .*= v_id
+\end
+SendMessage(lowest_neighbour,res);
+WaitForAllNeighbors(id < this_id);
+res = (1,1);
+\for id \in smaller_neighbour_ids
+res .*= v_id
+\end
+SendMessage(id > this_id,res);";
+			}
+		}
+		
 		public override void Setup (params string[] args) {
 			
 		}

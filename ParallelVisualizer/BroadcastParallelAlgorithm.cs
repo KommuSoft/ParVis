@@ -7,11 +7,10 @@ namespace ParallelVisualizer {
 	public class BroadcastParallelAlgorithm : ParallelAlgorithm {
 		
 		
-		private ParallelAlgorithm other;
-		
-		public BroadcastParallelAlgorithm ()
-		{
-			this.other = null;
+		public override string SourceCode {
+			get {
+				return "while true\nfor i=1:5\nend\nsendMessageToAll(\"Test\");\nend";
+			}
 		}
 		
 		public override void PaintState (Cairo.Context ctx)

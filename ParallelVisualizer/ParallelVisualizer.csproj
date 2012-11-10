@@ -57,6 +57,7 @@
     <Compile Include="BroadcastParallelAlgorithm.cs" />
     <Compile Include="ProductSumVariableParallelAlgorithm.cs" />
     <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="OrderedIdParallelAlgorithm.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

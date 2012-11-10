@@ -41,6 +41,10 @@ namespace ParallelVisualizer {
 			}
 		}
 		
+		public abstract string SourceCode {
+			get;
+		}
+		
 		internal IEnumerable<Edge> Edges {
 			get {
 				return this.edges.Values;

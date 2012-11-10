@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\my.key</AssemblyOriginatorKeyFile>
+    <newfilesearch>OnLoad</newfilesearch>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,7 +44,6 @@
     <Compile Include="BlueprintParallelStatePainter.cs" />
     <Compile Include="Utils.cs" />
     <Compile Include="BlueprintStyle.cs" />
-    <Compile Include="BlueprintSlider.cs" />
     <Compile Include="TextMessage.cs" />
     <Compile Include="SimulationSpecification.cs" />
     <Compile Include="NodeSpecification.cs" />
@@ -58,6 +58,8 @@
     <Compile Include="ProductSumVariableParallelAlgorithm.cs" />
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="OrderedIdParallelAlgorithm.cs" />
+    <Compile Include="BlueprintTabControl.cs" />
+    <Compile Include="gtk-gui\generated.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -73,5 +75,16 @@
       <Package>gtk-sharp-2.0</Package>
     </Reference>
     <Reference Include="System.Xml" />
+    <Reference Include="Mono.Posix" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ApplicationConfiguration.config">
+      <Visible>False</Visible>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="gtk-gui\gui.stetic">
+      <LogicalName>gui.stetic</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

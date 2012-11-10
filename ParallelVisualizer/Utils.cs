@@ -20,6 +20,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 using Cairo;
 namespace ParallelVisualizer {
 	
@@ -38,10 +39,10 @@ namespace ParallelVisualizer {
 			pc = new PointD (cx - dx, cy - dy);
 			pd = new PointD(cx + dx,cy + dy);
 		}
-		public Rectangle CreateConvexRectangle (params PointD[] points)
+		public static Rectangle CreateConvexRectangle (params PointD[] points)
 		{
 			if (points == null || points.Length < 1) {
-				return null;
+				return new Rectangle(0.0d,0.0d,0.0d,0.0d);
 			}
 			else {
 				double xm = points[0].X;
@@ -60,10 +61,10 @@ namespace ParallelVisualizer {
 				return new Rectangle (xm, ym, xM - xm, yM - ym);
 			}
 		}
-		public Rectangle CreateConvexRectangle (IEnumerable<PointD> points)
+		public static Rectangle CreateConvexRectangle (IEnumerable<PointD> points)
 		{
 			if (points == null) {
-				return null;
+				return new Rectangle (0.0d, 0.0d, 0.0d, 0.0d);
 			} else {
 				double xm = double.PositiveInfinity;
 				double xM = double.NegativeInfinity;
@@ -80,6 +81,10 @@ namespace ParallelVisualizer {
 				}
 				return new Rectangle (xm, ym, xM - xm, yM - ym);
 			}
+		}
+		public static Rectangle InflateRectangle (Rectangle r, double width, double height)
+		{
+			return new Rectangle(r.X-0.5d*width,r.Y-0.5d*height,r.Width+width,r.Height+height);
 		}
 		
 	}

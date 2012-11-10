@@ -24,16 +24,49 @@ using Cairo;
 namespace ParallelVisualizer
 {
 	[System.ComponentModel.ToolboxItem(true)]
-	public class BlueprintSlider : Gtk.DrawingArea {
+	public class BlueprintTabControl : Gtk.DrawingArea {
 		
 		public const double Offset = 10;
 		private int min = 1;
 		private int max = 2;
-		private int current = 10;
+		private int current = 1;
 		private const double shaft = 0.25d;
 		private double flapWidth = 1.0d;
 		
-		public BlueprintSlider ()
+		public int Min {
+			get {
+				return this.min;
+			}
+			set {
+				this.min = Math.Min (value, this.max);
+				this.QueueDraw ();
+			}
+		}
+		public int Max {
+			get { return this.max; }
+			set {
+				this.max = Math.Max(value,this.min);
+				this.QueueDraw ();
+			}
+		}
+		public int Current {
+			get { return this.current; }
+			set {
+				int old = this.current;
+				this.current = Math.Max (this.min, Math.Min (this.max, value));
+				if (this.current != old) {
+					int w, h;
+					double xm, xM;
+					this.GdkWindow.GetSize (out w, out h);
+					getBoundsFromIndex (old, out xm, out xM);
+					this.QueueDrawArea ((int)Math.Floor (xm), 0x00, (int)Math.Ceiling (xM), h);
+					getBoundsFromIndex (this.current, out xm, out xM);
+					this.QueueDrawArea ((int)Math.Floor (xm), 0x00, (int)Math.Ceiling (xM), h);
+				}
+			}
+		}
+		
+		public BlueprintTabControl ()
 		{
 			// Insert initialization code here.
 			this.AddEvents((int)(Gdk.EventMask.PointerMotionMask|Gdk.EventMask.ButtonPressMask));
@@ -43,15 +76,7 @@ namespace ParallelVisualizer
 			// Insert button press handling code here.
 			int index = getIndexFromX (ev.X);
 			if (index != -1) {
-				int w, h;
-				this.GdkWindow.GetSize (out w, out h);
-				int old = this.current;
-				this.current = index;
-				double xm, xM;
-				getBoundsFromIndex (old, out xm, out xM);
-				this.QueueDrawArea ((int)Math.Floor (xm), 0x00, (int)Math.Ceiling (xM), h);
-				getBoundsFromIndex (this.current, out xm, out xM);
-				this.QueueDrawArea ((int)Math.Floor (xm), 0x00, (int)Math.Ceiling (xM), h);
+				this.Current = index;
 			}
 			return base.OnButtonPressEvent (ev);
 		}

@@ -27,8 +27,9 @@ namespace ParallelVisualizer {
 
 	public class DisplayWindow : Window {
 		
-		private BlueprintParallelStatePainter psp;
-		private BlueprintSlider slider;
+		private BlueprintParallelStatePainter bpsp;
+		private BlueprintTabControl bs;
+		private BlueprintMediabar bm;
 		private SimulationServer ss = new SimulationServer();
 		private VBox vb = new VBox(false,0);
 		
@@ -81,17 +82,26 @@ namespace ParallelVisualizer {
 			tb.Add (new SeparatorToolItem ());
 			tb.Add (tb_play);
 			tb.Add (tb_pause);
-			this.psp = new BlueprintParallelStatePainter (this.ss.Simulator);
-			this.slider = new BlueprintSlider ();
+			this.bpsp = new BlueprintParallelStatePainter (this.ss.Simulator);
+			this.bm = new BlueprintMediabar ();
+			this.bm.CurrentChanged += HandleBmhandleCurrentChanged;
+			this.bm.CurrentChanged += this.bpsp.RepaintEdges;
+			this.bs = new BlueprintTabControl ();
 			vb.PackStart (mb, false, false, 0x00);
 			vb.PackStart (tb, false, false, 0x00);
-			vb.PackStart (this.psp, true, true, 0x00);
-			vb.PackStart (new BlueprintMediabar (), false, false, 0x00);
-			vb.PackStart (this.slider, false, false, 0x00);
+			vb.PackStart (this.bpsp, true, true, 0x00);
+			vb.PackStart (this.bm, false, false, 0x00);
+			vb.PackStart (this.bs, false, false, 0x00);
 			this.Title = "Parallel Visualizer";
 			this.Resize (640, 480);
 			this.Add (vb);
 			this.ShowAll ();
+		}
+
+		void HandleBmhandleCurrentChanged (object sender, EventArgs e)
+		{
+			double current = this.bm.Current;
+			this.ss.Simulator.ForwardTo((int) Math.Floor(current));
 		}
 		
 		private void openConfigFile (object s, EventArgs e)
@@ -116,10 +126,9 @@ namespace ParallelVisualizer {
 					md.Run();
 					md.Destroy();
 				}
-				this.psp.Reload();
+				this.bpsp.Reload();
 			}
 			fcd.Dispose();
-			new Thread(new ThreadStart(eval)).Start();
 		}
 		protected override void OnHidden ()
 		{

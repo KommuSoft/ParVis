@@ -29,9 +29,11 @@ namespace ParallelVisualizer
 		public const double Offset = 10.0d;
 		public const double Epsilon = 1e-6;
 		private double min = 0.0d;
-		private double max = 1.0d;
+		private double max = 10.0d;
 		private double current = 0.0d;
 		private double speed = 1.0d;
+		private double xtickS = 0.0d;
+		private double xtickE = 0.0d;
 		private MediaMode mode = MediaMode.Pause;
 		private event EventHandler currentChanged;
 		
@@ -97,7 +99,7 @@ namespace ParallelVisualizer
 		protected override bool OnMotionNotifyEvent (Gdk.EventMotion evnt)
 		{
 			double x = evnt.X, y = evnt.Y;
-			if (x >= Offset && x <= Offset+32 && y >= 1 && y <= 33) {
+			if (y >= 1 && y <= 33 && ((x >= Offset && x <= Offset+32) || (x >= xtickS && x <= xtickE))) {
 				this.GdkWindow.Cursor = new Gdk.Cursor (Gdk.CursorType.Hand1);
 			} else {
 				this.GdkWindow.Cursor = new Gdk.Cursor (Gdk.CursorType.Arrow);
@@ -131,10 +133,11 @@ namespace ParallelVisualizer
 					this.Mode = MediaMode.Pause;
 				}
 				this.QueueDraw ();
+				this.handleCurrentChanged();
 				return true;
 			}
 		}
-		private void handleCurrent ()
+		private void handleCurrentChanged ()
 		{
 			this.OnCurrentChanged ();
 			if(currentChanged != null) {
@@ -154,7 +157,7 @@ namespace ParallelVisualizer
 			ctx.Rectangle (0.0d, 0.0d, w, h);
 			ctx.Color = BlueprintStyle.BluePrint;
 			double xb = 2 * Offset + 36.0d;
-			double wb = w - Offset - xb-4.0d;
+			double wb = w - Offset - xb - 4.0d;
 			double xbt = wb * (current - min) / (max - min) - 4.0d;
 			ctx.Fill ();
 			switch (this.mode) {
@@ -171,6 +174,8 @@ namespace ParallelVisualizer
 				break;
 			}
 			ctx.Rectangle (xb + xbt, 1.0d, 8.0d, 32.0d);
+			this.xtickS = xb + xbt;
+			this.xtickE = xtickS+8.0d;
 			ctx.Pattern = BlueprintStyle.FillPattern;
 			ctx.FillPreserve ();
 			ctx.Color = BlueprintStyle.HardWhite;

@@ -26,23 +26,21 @@ namespace ParallelVisualizer {
 	
 	public static class Utils {
 		
-		public static void CutTowardsCenter (PointD pa, PointD pb, double dr, out PointD pc, out PointD pd)
-		{
-			double cx = 0.5d * (pa.X + pb.X);
-			double cy = 0.5d * (pa.Y + pb.Y);
-			double dx = pb.X - cx;
-			double dy = pb.Y - cy;
-			double drr = Math.Sqrt (dx * dx + dy * dy);
-			drr = (drr - dr) / drr;
+		public static void CutTowardsCenter (PointD pa, PointD pb, double dr, out PointD pc, out PointD pd) {
+			double cx = 0.5d*(pa.X+pb.X);
+			double cy = 0.5d*(pa.Y+pb.Y);
+			double dx = pb.X-cx;
+			double dy = pb.Y-cy;
+			double drr = Math.Sqrt(dx*dx+dy*dy);
+			drr = (drr-dr)/drr;
 			dx *= drr;
 			dy *= drr;
-			pc = new PointD (cx - dx, cy - dy);
-			pd = new PointD(cx + dx,cy + dy);
+			pc = new PointD(cx-dx, cy-dy);
+			pd = new PointD(cx+dx, cy+dy);
 		}
-		public static Rectangle CreateConvexRectangle (params PointD[] points)
-		{
-			if (points == null || points.Length < 1) {
-				return new Rectangle(0.0d,0.0d,0.0d,0.0d);
+		public static Rectangle CreateConvexRectangle (params PointD[] points) {
+			if(points == null || points.Length < 1) {
+				return new Rectangle(0.0d, 0.0d, 0.0d, 0.0d);
 			}
 			else {
 				double xm = points[0].X;
@@ -50,41 +48,47 @@ namespace ParallelVisualizer {
 				double ym = points[0].Y;
 				double yM = ym;
 				double x, y;
-				for (int i = 1; i < points.Length; i++) {
+				for(int i = 1; i < points.Length; i++) {
 					x = points[i].X;
 					y = points[i].Y;
-					xm = Math.Min (xm, x);
-					ym = Math.Min (ym, y);
-					xM = Math.Max (xM, x);
-					yM = Math.Max (yM, y);
+					xm = Math.Min(xm, x);
+					ym = Math.Min(ym, y);
+					xM = Math.Max(xM, x);
+					yM = Math.Max(yM, y);
 				}
-				return new Rectangle (xm, ym, xM - xm, yM - ym);
+				return new Rectangle(xm, ym, xM-xm, yM-ym);
 			}
 		}
-		public static Rectangle CreateConvexRectangle (IEnumerable<PointD> points)
-		{
-			if (points == null) {
-				return new Rectangle (0.0d, 0.0d, 0.0d, 0.0d);
-			} else {
+		public static Rectangle CreateConvexRectangle (IEnumerable<PointD> points) {
+			if(points == null) {
+				return new Rectangle(0.0d, 0.0d, 0.0d, 0.0d);
+			}
+			else {
 				double xm = double.PositiveInfinity;
 				double xM = double.NegativeInfinity;
 				double ym = double.PositiveInfinity;
 				double yM = double.NegativeInfinity;
 				double x, y;
-				foreach (PointD p in points) {
+				foreach(PointD p in points) {
 					x = p.X;
 					y = p.Y;
-					xm = Math.Min (xm, x);
-					ym = Math.Min (ym, y);
-					xM = Math.Max (xM, x);
-					yM = Math.Max (yM, y);
+					xm = Math.Min(xm, x);
+					ym = Math.Min(ym, y);
+					xM = Math.Max(xM, x);
+					yM = Math.Max(yM, y);
 				}
-				return new Rectangle (xm, ym, xM - xm, yM - ym);
+				return new Rectangle(xm, ym, xM-xm, yM-ym);
 			}
 		}
-		public static Rectangle InflateRectangle (Rectangle r, double width, double height)
-		{
-			return new Rectangle(r.X-0.5d*width,r.Y-0.5d*height,r.Width+width,r.Height+height);
+		public static Rectangle InflateRectangle (Rectangle r, double width, double height) {
+			return new Rectangle(r.X-0.5d*width, r.Y-0.5d*height, r.Width+width, r.Height+height);
+		}
+		public static IEnumerable<TC> Elementwise<TA,TB,TC> (Func<TA,TB,TC> f, IEnumerable<TA> ta, IEnumerable<TB> tb) {
+			IEnumerator<TA> ea = ta.GetEnumerator();
+			IEnumerator<TB> eb = tb.GetEnumerator();
+			while(ea.MoveNext() && eb.MoveNext()) {
+				yield return f(ea.Current, eb.Current);
+			}
 		}
 		
 	}

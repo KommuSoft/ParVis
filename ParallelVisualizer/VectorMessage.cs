@@ -1,5 +1,5 @@
 //
-//  OrderedIdParallelAlgorithm.cs
+//  VectorMessage.cs
 //
 //  Author:
 //       Willem Van Onsem <vanonsem.willem@gmail.com>
@@ -19,36 +19,32 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
-using  System.Linq;
-using System.Collections.Generic;
 
 namespace ParallelVisualizer {
 
-	public abstract class OrderedIdParallelAlgorithm : ParallelAlgorithm {
+	public class VectorMessage : Message {
 
-		public IEnumerable<ParallelAlgorithm> HigherNeighbours {
+		private readonly double[] data;
+
+		public double this [int index] {
 			get {
-				return this.Neighbours.Where(x => x.Id > this.Id);
+				return this.data[index];
+			}
+		}
+		public double[] Data {
+			get {
+				return this.data;
 			}
 		}
 
-		public IEnumerable<ParallelAlgorithm> LowerNeighbours {
-			get {
-				return this.Neighbours.Where(x => x.Id < this.Id);
-			}
+		public VectorMessage (ParallelAlgorithm sender, ParallelAlgorithm receiver, double[] data) : base(sender,receiver) {
+			this.data = data;
 		}
 
-		public IEnumerable<int> LowerIds {
-			get {
-				return this.LowerNeighbours.Select(x => x.Id);
-			}
-		}
-
-		public IEnumerable<int> HigherIds {
-			get {
-				return this.HigherNeighbours.Select(x => x.Id);
-			}
+		public override string ToString () {
+			return string.Format("[{0}]", string.Join(",", this.Data));
 		}
 
 	}
 }
+

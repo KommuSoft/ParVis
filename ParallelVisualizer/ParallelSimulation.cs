@@ -32,6 +32,7 @@ namespace ParallelVisualizer {
 		private readonly Dictionary<ParallelAlgorithm,string[]> initArgs = new Dictionary<ParallelAlgorithm, string[]>();
 		private int time = 0;
 		private bool initialized = false;
+		private int maxTime = 1024;
 		
 		public List<ParallelAlgorithm> Algorithms {
 			get {
@@ -48,6 +49,14 @@ namespace ParallelVisualizer {
 				return this.time;
 			}
 		}
+		public int MaxTime {
+			get {
+				return this.maxTime;
+			}
+			set {
+				this.maxTime = value;
+			}
+		}
 		
 		public ParallelSimulation (params ParallelAlgorithm[] pas)
 		{
@@ -58,6 +67,7 @@ namespace ParallelVisualizer {
 		
 		public void AddParallelAlgorithm (ParallelAlgorithm pa)
 		{
+			pa.Simulator = this;
 			pa.Id = this.algorithms.Count;
 			this.algorithms.Add (pa);
 			foreach (Edge e in pa.Edges) {
@@ -115,6 +125,12 @@ namespace ParallelVisualizer {
 		{
 			this.relativePositions.Add(pa,rp);
 		}
+		
+		public void NewChapter ()
+		{
+			
+		}
+
 		internal void AddEdge (Edge e)
 		{
 			if (!this.edges.Contains (e)) {

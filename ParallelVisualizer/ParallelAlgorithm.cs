@@ -20,6 +20,7 @@
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using  Cairo;
 
 namespace ParallelVisualizer {
@@ -27,10 +28,11 @@ namespace ParallelVisualizer {
 	public abstract class ParallelAlgorithm {
 		
 		private int id;
-		private readonly Dictionary<ParallelAlgorithm,Edge> edges = new Dictionary<ParallelAlgorithm, Edge> ();
+		private readonly Dictionary<ParallelAlgorithm,Edge> edges = new Dictionary<ParallelAlgorithm, Edge>();
 		private string name;
 		private static int nameDispatcher = 0x00;
 		private List<ParallelAlgorithm> neighbours = null;
+		private ParallelSimulation sim;
 		
 		public int Id {
 			get {
@@ -45,6 +47,15 @@ namespace ParallelVisualizer {
 			get;
 		}
 		
+		internal ParallelSimulation Simulator {
+			get {
+				return this.sim;
+			}
+			set {
+				this.sim = value;
+			}
+		}
+		
 		internal IEnumerable<Edge> Edges {
 			get {
 				return this.edges.Values;
@@ -52,24 +63,29 @@ namespace ParallelVisualizer {
 		}
 		protected List<ParallelAlgorithm> Neighbours {
 			get {
-				if (this.neighbours == null) {
-					this.neighbours = new List<ParallelAlgorithm> (this.edges.Keys);
+				if(this.neighbours == null) {
+					this.neighbours = new List<ParallelAlgorithm>(this.edges.Keys.OrderBy(x => x.Id));
 				}
 				return this.neighbours;
 			}
 		}
+		protected IEnumerable<int> NeighbourIds {
+			get {
+				foreach(ParallelAlgorithm pa in Neighbours) {
+					yield return pa.Id;
+				}
+			}
+		}
 		
-		internal void RegisterEdges (IEnumerable<Edge> edges)
-		{
-			foreach (Edge e in edges) {
+		internal void RegisterEdges (IEnumerable<Edge> edges) {
+			foreach(Edge e in edges) {
 				RegisterEdge(e);
 			}
 		}
-		internal void RegisterEdge (Edge e)
-		{
+		internal void RegisterEdge (Edge e) {
 			this.neighbours = null;
-			if (e.IsNode (this) && !this.edges.ContainsKey (e.Other (this))) {
-				this.edges.Add (e.Other (this), e);
+			if(e.IsNode(this) && !this.edges.ContainsKey(e.Other(this))) {
+				this.edges.Add(e.Other(this), e);
 			}
 		}
 		public string Name {
@@ -81,8 +97,7 @@ namespace ParallelVisualizer {
 			}
 		}
 		
-		protected ParallelAlgorithm ()
-		{
+		protected ParallelAlgorithm () {
 			this.name = "Algorithm"+(nameDispatcher++).ToString();
 		}
 		
@@ -94,18 +109,24 @@ namespace ParallelVisualizer {
 
 		protected internal abstract void ReciveMessage (Message message);
 		
+		protected void NewChapter () {
+			this.sim.NewChapter();
+		}
 		protected void SendMessage (Message message) {
-			if (message.Sender != this) {
-				throw new ArgumentException ("An algorithm can only send message with itself as sender.");
+			if(message.Sender != this) {
+				throw new ArgumentException("An algorithm can only send message with itself as sender.");
 			}
 			ParallelAlgorithm receiver = message.Receiver;
 			Edge e;
-			if (receiver == this) {
-				this.ReciveMessage (message);
-			} else if (this.edges.TryGetValue (receiver, out e)) {
-				e.RouteMessage (message);
-			} else {
-				throw new ArgumentException ("Can't route message: the node is  not connected to the receiving node.");
+			if(receiver == this) {
+				this.ReciveMessage(message);
+			}
+			else
+			if(this.edges.TryGetValue(receiver, out e)) {
+				e.RouteMessage(message);
+			}
+			else {
+				throw new ArgumentException("Can't route message: the node is  not connected to the receiving node.");
 			}
 		}
 		

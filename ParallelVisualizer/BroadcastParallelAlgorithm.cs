@@ -13,28 +13,24 @@ namespace ParallelVisualizer {
 			}
 		}
 		
-		public override void PaintState (Cairo.Context ctx)
-		{
+		public override void PaintState (Cairo.Context ctx) {
 		
 		}
 		
-		protected override internal void ReciveMessage (Message message)
-		{
+		protected override internal void ReciveMessage (Message message) {
 			
 		}
 		
-		public override void Setup (string[] args)
-		{
+		public override void Setup (string[] args) {
 		
 		}
-		public override IEnumerable<int> Steps ()
-		{
+		public override IEnumerable<int> Steps () {
 			int i = 0;
-			while (true) {
+			while(true) {
 				i++;
-				if ((i % 5) == 0) {
-					foreach (ParallelAlgorithm n in this.Neighbours) {
-						this.SendMessage (new TextMessage (this, n, "Test"));
+				if((i%5) == 0) {
+					foreach(ParallelAlgorithm n in this.Neighbours) {
+						this.SendMessage(new VectorMessage(this, n, new double[] {0.234,0.168,3.142}));
 					}
 				}
 				yield return 0;

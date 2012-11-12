@@ -29,8 +29,8 @@ namespace ParallelVisualizer {
 		
 		private readonly ParallelAlgorithm node1;
 		private readonly ParallelAlgorithm node2;
-		private readonly Queue<PostedMessage> atob = new Queue<PostedMessage> ();
-		private readonly Queue<PostedMessage> btoa = new Queue<PostedMessage> ();
+		private readonly Queue<PostedMessage> atob = new Queue<PostedMessage>();
+		private readonly Queue<PostedMessage> btoa = new Queue<PostedMessage>();
 		private int delay = 3;
 		private ParallelSimulation simulator;
 		
@@ -45,6 +45,12 @@ namespace ParallelVisualizer {
 				return this.node2;
 			}
 		}
+
+		public int Delay {
+			get {
+				return this.delay;
+			}
+		}
 		
 		public ParallelSimulation Simulator {
 			get {
@@ -55,8 +61,7 @@ namespace ParallelVisualizer {
 			}
 		}
 		
-		public Edge (ParallelAlgorithm node1, ParallelAlgorithm node2)
-		{
+		public Edge (ParallelAlgorithm node1, ParallelAlgorithm node2) {
 			this.node1 = node1;
 			this.node2 = node2;
 		}
@@ -66,51 +71,49 @@ namespace ParallelVisualizer {
 		}
 
 		public ParallelAlgorithm Other (ParallelAlgorithm node) {
-			if (node == this.Node1) {
+			if(node == this.Node1) {
 				return this.Node2;
-			} else {
+			}
+			else {
 				return this.Node1;
 			}
 		}
 
-		public void RouteMessage (Message message)
-		{
-			if (message.Sender == Node1 && message.Receiver == Node2) {
-				this.atob.Enqueue (new PostedMessage (this.Simulator.Time, message));
+		public void RouteMessage (Message message) {
+			if(message.Sender == Node1 && message.Receiver == Node2) {
+				this.atob.Enqueue(new PostedMessage(this.Simulator.Time, message));
 			}
-			else if (message.Sender == Node2 && message.Receiver == Node1) {
-				this.btoa.Enqueue (new PostedMessage (this.Simulator.Time, message));
+			else
+			if(message.Sender == Node2 && message.Receiver == Node1) {
+				this.btoa.Enqueue(new PostedMessage(this.Simulator.Time, message));
 			}
 		}
 		
-		public IEnumerable<Tuple<double, string>> GetUpwardsMessages ()
-		{
-			foreach (PostedMessage pm in this.atob) {
-				double t = ((double) this.Simulator.Time-pm.Item1)/this.delay;
-				yield return new Tuple<double, string>(t,pm.Item2.ToString());
+		public IEnumerable<Tuple<double, string>> GetUpwardsMessages () {
+			foreach(PostedMessage pm in this.atob) {
+				double t = ((double)this.Simulator.Time-pm.Item1-1)/this.delay;
+				yield return new Tuple<double, string>(t, pm.Item2.ToString());
 			}
 		}
 		
 		public IEnumerable<Tuple<double, string>> GetDownwardsMessages () {
-			foreach (PostedMessage pm in this.btoa) {
-				double t = ((double) this.Simulator.Time - pm.Item1) / this.delay;
-				yield return new Tuple<double, string> (t, pm.Item2.ToString ());
+			foreach(PostedMessage pm in this.btoa) {
+				double t = ((double)this.Simulator.Time-pm.Item1-1)/this.delay;
+				yield return new Tuple<double, string>(t, pm.Item2.ToString());
 			}
 		}
 		
 		
-		void deliverPost (Queue<PostedMessage> queue)
-		{
-			while (queue.Count > 0 && Simulator.Time - queue.Peek ().Item1 >= delay) {
-				Message pm = queue.Dequeue ().Item2;
-				pm.Receiver.ReciveMessage (pm);
+		void deliverPost (Queue<PostedMessage> queue) {
+			while(queue.Count > 0 && Simulator.Time - queue.Peek ().Item1 >= delay) {
+				Message pm = queue.Dequeue().Item2;
+				pm.Receiver.ReciveMessage(pm);
 			}
 		}
 
-		public void DeliverPost ()
-		{
-			deliverPost (this.atob);
-			deliverPost (this.btoa);
+		public void DeliverPost () {
+			deliverPost(this.atob);
+			deliverPost(this.btoa);
 		}
 		
 	}

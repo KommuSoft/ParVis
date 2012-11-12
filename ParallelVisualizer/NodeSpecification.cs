@@ -22,7 +22,7 @@ using System;
 using System.Xml.Serialization;
 
 namespace ParallelVisualizer.Specification {
-	
+
 	[XmlType("Node")]
 	public class NodeSpecification {
 		
@@ -40,6 +40,7 @@ namespace ParallelVisualizer.Specification {
 				this.algorithmName = value;
 			}
 		}
+
 		[XmlAttribute("NodeName")]
 		public string NodeName {
 			get {
@@ -49,6 +50,7 @@ namespace ParallelVisualizer.Specification {
 				this.nodeName = value;
 			}
 		}
+
 		[XmlElement("RelativePosition")]
 		public RelativePosition RelativePosition {
 			get {
@@ -58,6 +60,7 @@ namespace ParallelVisualizer.Specification {
 				this.relPos = value;
 			}
 		}
+
 		[XmlArray("Arguments")]
 		[XmlArrayItem("Argument")]
 		public string[] InitializationArguments {
@@ -69,13 +72,14 @@ namespace ParallelVisualizer.Specification {
 			}
 		}
 		
-		public NodeSpecification () {}
-		public NodeSpecification (string nodeName, string algorithmName, RelativePosition relPos, params string[] arguments)
-		{
+		public NodeSpecification () {
+		}
+
+		public NodeSpecification (string nodeName, string algorithmName, RelativePosition relPos, params string[] arguments) {
 			this.nodeName = nodeName;
 			this.algorithmName = algorithmName;
 			this.relPos = relPos;
-			this.args = args;
+			this.args = arguments;
 		}
 	}
 }

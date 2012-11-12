@@ -31,98 +31,98 @@ namespace ParallelVisualizer {
 		private BlueprintTabControl bs;
 		private BlueprintMediabar bm;
 		private SimulationServer ss = new SimulationServer();
-		private VBox vb = new VBox(false,0);
+		private VBox vb = new VBox(false, 0);
 		
-		public DisplayWindow () : base(WindowType.Toplevel)
-		{
-			MenuBar mb = new MenuBar ();
-			MenuItem mi_file = new MenuItem ("File");
-			Menu m_file = new Menu ();
-			MenuItem mi_file_opendll = new MenuItem ("Connect with algorithm library...");
+		public DisplayWindow () : base(WindowType.Toplevel) {
+			MenuBar mb = new MenuBar();
+			MenuItem mi_file = new MenuItem("File");
+			Menu m_file = new Menu();
+			MenuItem mi_file_opendll = new MenuItem("Connect with algorithm library...");
 			mi_file_opendll.Activated += openLibFile;
-			MenuItem mi_file_openxml = new MenuItem ("Open configuration file...");
+			MenuItem mi_file_openxml = new MenuItem("Open configuration file...");
 			mi_file_openxml.Activated += openConfigFile;
-			MenuItem mi_file_quit = new MenuItem ("Quit");
-			mi_file_quit.Activated += delegate { Application.Quit (); };
-			MenuItem mi_edit = new MenuItem ("Edit");
-			Menu m_edit = new Menu ();
-			RadioMenuItem mi_edit_move = new RadioMenuItem ("Move nodes");
-			RadioMenuItem mi_edit_insp = new RadioMenuItem (mi_edit_move, "Inspect node");
-			MenuItem mi_edit_play = new ImageMenuItem (Stock.MediaPlay, null);
-			MenuItem mi_edit_pause = new ImageMenuItem (Stock.MediaPause, null);
-			mb.Add (mi_file);
+			MenuItem mi_file_quit = new MenuItem("Quit");
+			mi_file_quit.Activated += delegate {
+				Application.Quit();
+			};
+			MenuItem mi_edit = new MenuItem("Edit");
+			Menu m_edit = new Menu();
+			RadioMenuItem mi_edit_move = new RadioMenuItem("Move nodes");
+			RadioMenuItem mi_edit_insp = new RadioMenuItem(mi_edit_move, "Inspect node");
+			MenuItem mi_edit_play = new ImageMenuItem(Stock.MediaPlay, null);
+			MenuItem mi_edit_pause = new ImageMenuItem(Stock.MediaPause, null);
+			mb.Add(mi_file);
 			mi_file.Submenu = m_file;
-			m_file.Add (mi_file_opendll);
-			m_file.Add (mi_file_openxml);
-			m_file.Add (new SeparatorMenuItem ());
-			m_file.Add (mi_file_quit);
+			m_file.Add(mi_file_opendll);
+			m_file.Add(mi_file_openxml);
+			m_file.Add(new SeparatorMenuItem());
+			m_file.Add(mi_file_quit);
 			mi_edit.Submenu = m_edit;
-			m_edit.Add (mi_edit_move);
-			m_edit.Add (mi_edit_insp);
-			m_edit.Add (new SeparatorMenuItem ());
-			m_edit.Add (mi_edit_play);
-			m_edit.Add (mi_edit_pause);
-			mb.Add (mi_edit);
-			Toolbar tb = new Toolbar ();
+			m_edit.Add(mi_edit_move);
+			m_edit.Add(mi_edit_insp);
+			m_edit.Add(new SeparatorMenuItem());
+			m_edit.Add(mi_edit_play);
+			m_edit.Add(mi_edit_pause);
+			mb.Add(mi_edit);
+			Toolbar tb = new Toolbar();
 			StockItem si;
-			StockManager.Lookup (Stock.MediaPlay, ref si);
-			ToolButton tb_opendll = new ToolButton (Stock.Connect);
+			StockManager.Lookup(Stock.MediaPlay, ref si);
+			ToolButton tb_opendll = new ToolButton(Stock.Connect);
 			tb_opendll.Clicked += openLibFile;
-			ToolButton tb_openxml = new ToolButton (Stock.Open);
+			ToolButton tb_openxml = new ToolButton(Stock.Open);
 			tb_openxml.Clicked += openConfigFile;
-			ToolButton tb_move = new ToggleToolButton (Stock.Preferences);
-			ToolButton tb_insp = new ToggleToolButton (Stock.ZoomIn);
-			ToolButton tb_play = new ToolButton (Stock.MediaPlay);
-			ToolButton tb_pause = new ToolButton (Stock.MediaPause);
-			tb.Add (tb_opendll);
-			tb.Add (tb_openxml);
-			tb.Add (new SeparatorToolItem ());
-			tb.Add (tb_move);
-			tb.Add (tb_insp);
-			tb.Add (new SeparatorToolItem ());
-			tb.Add (tb_play);
-			tb.Add (tb_pause);
-			this.bpsp = new BlueprintParallelStatePainter (this.ss.Simulator);
-			this.bm = new BlueprintMediabar ();
+			ToolButton tb_move = new ToggleToolButton(Stock.Preferences);
+			ToolButton tb_insp = new ToggleToolButton(Stock.ZoomIn);
+			ToolButton tb_play = new ToolButton(Stock.MediaPlay);
+			ToolButton tb_pause = new ToolButton(Stock.MediaPause);
+			tb.Add(tb_opendll);
+			tb.Add(tb_openxml);
+			tb.Add(new SeparatorToolItem());
+			tb.Add(tb_move);
+			tb.Add(tb_insp);
+			tb.Add(new SeparatorToolItem());
+			tb.Add(tb_play);
+			tb.Add(tb_pause);
+			this.bpsp = new BlueprintParallelStatePainter(this.ss.Simulator);
+			this.bm = new BlueprintMediabar();
 			this.bm.CurrentChanged += HandleBmhandleCurrentChanged;
 			this.bm.CurrentChanged += this.bpsp.RepaintEdges;
-			this.bs = new BlueprintTabControl ();
-			vb.PackStart (mb, false, false, 0x00);
-			vb.PackStart (tb, false, false, 0x00);
-			vb.PackStart (this.bpsp, true, true, 0x00);
-			vb.PackStart (this.bm, false, false, 0x00);
-			vb.PackStart (this.bs, false, false, 0x00);
+			this.bs = new BlueprintTabControl();
+			vb.PackStart(mb, false, false, 0x00);
+			vb.PackStart(tb, false, false, 0x00);
+			vb.PackStart(this.bpsp, true, true, 0x00);
+			vb.PackStart(this.bm, false, false, 0x00);
+			vb.PackStart(this.bs, false, false, 0x00);
 			this.Title = "Parallel Visualizer";
-			this.Resize (640, 480);
-			this.Add (vb);
-			this.ShowAll ();
+			this.Resize(640, 480);
+			this.Add(vb);
+			this.ShowAll();
 		}
 
-		void HandleBmhandleCurrentChanged (object sender, EventArgs e)
-		{
+		void HandleBmhandleCurrentChanged (object sender, EventArgs e) {
 			double current = this.bm.Current;
-			this.ss.Simulator.ForwardTo((int) Math.Floor(current));
+			this.ss.Simulator.ForwardTo((int)Math.Floor(current));
+			this.bpsp.Time = this.bm.Current;
 		}
 		
-		private void openConfigFile (object s, EventArgs e)
-		{
-			FileChooserDialog fcd = new FileChooserDialog ("Open Config File...", this, FileChooserAction.Open);
+		private void openConfigFile (object s, EventArgs e) {
+			FileChooserDialog fcd = new FileChooserDialog("Open Config File...", this, FileChooserAction.Open);
 			fcd.TransientFor = this;
-			fcd.AddButton (Stock.Cancel, ResponseType.Cancel);
-			fcd.AddButton (Stock.Ok, ResponseType.Ok);
-			FileFilter ff = new FileFilter ();
+			fcd.AddButton(Stock.Cancel, ResponseType.Cancel);
+			fcd.AddButton(Stock.Ok, ResponseType.Ok);
+			FileFilter ff = new FileFilter();
 			ff.Name = "Config file (.xml)";
 			ff.AddMimeType("text/xml");
-			ff.AddMimeType ("application/xml");
+			ff.AddMimeType("application/xml");
 			fcd.AddFilter(ff);
 			int result = fcd.Run();
 			fcd.HideAll();
-			if (result == (int)ResponseType.Ok) {
+			if(result == (int)ResponseType.Ok) {
 				try {
-					ss.ReadConfigFile (fcd.Filename);
+					ss.ReadConfigFile(fcd.Filename);
 				}
 				catch(Exception ex) {
-					MessageDialog md = new MessageDialog(this,DialogFlags.DestroyWithParent,MessageType.Error,ButtonsType.Ok,true,ex.Message);
+					MessageDialog md = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Error, ButtonsType.Ok, true, ex.Message);
 					md.Run();
 					md.Destroy();
 				}
@@ -130,43 +130,39 @@ namespace ParallelVisualizer {
 			}
 			fcd.Dispose();
 		}
-		protected override void OnHidden ()
-		{
-			base.OnHidden ();
+		protected override void OnHidden () {
+			base.OnHidden();
 			this.Destroy();
 		}
-		public override void Destroy ()
-		{
-			base.Destroy ();
+		public override void Destroy () {
+			base.Destroy();
 			Gtk.Main.Quit();
 		}
-		private void openLibFile (object s, EventArgs e)
-		{
-			FileChooserDialog fcd = new FileChooserDialog ("Open Library File...", this, FileChooserAction.Open);
+		private void openLibFile (object s, EventArgs e) {
+			FileChooserDialog fcd = new FileChooserDialog("Open Library File...", this, FileChooserAction.Open);
 			fcd.TransientFor = this;
-			fcd.AddButton (Stock.Cancel, ResponseType.Cancel);
-			fcd.AddButton (Stock.Ok, ResponseType.Ok);
-			FileFilter ff = new FileFilter ();
+			fcd.AddButton(Stock.Cancel, ResponseType.Cancel);
+			fcd.AddButton(Stock.Ok, ResponseType.Ok);
+			FileFilter ff = new FileFilter();
 			ff.Name = "Dynamic Link Library (.dll,.exe)";
-			ff.AddPattern (@"*.dll");
-			ff.AddPattern (@"*.exe");
-			fcd.AddFilter (ff);
-			int result = fcd.Run ();
-			fcd.HideAll ();
-			if (result == (int)ResponseType.Ok) {
-				ss.ConnectAlgorithmLibrary (fcd.Filename);
+			ff.AddPattern(@"*.dll");
+			ff.AddPattern(@"*.exe");
+			fcd.AddFilter(ff);
+			int result = fcd.Run();
+			fcd.HideAll();
+			if(result == (int)ResponseType.Ok) {
+				ss.ConnectAlgorithmLibrary(fcd.Filename);
 			}
-			fcd.Dispose ();
+			fcd.Dispose();
 		}
 		
-		public static void Main (string[] args)
-		{
-			Application.Init ();
-			Gdk.Threads.Init ();
-			Gdk.Threads.Enter ();
-			using (DisplayWindow dw = new DisplayWindow ()) {
+		public static void Main (string[] args) {
+			Application.Init();
+			Gdk.Threads.Init();
+			Gdk.Threads.Enter();
+			using(DisplayWindow dw = new DisplayWindow ()) {
 				
-				Application.Run ();
+				Application.Run();
 			}
 			Gdk.Threads.Leave();
 		}

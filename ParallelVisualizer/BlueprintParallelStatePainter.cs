@@ -25,6 +25,10 @@ using Cairo;
 
 namespace ParallelVisualizer {
 
+	using Node = Tuple<string,PointD>;
+	using EdgeNotation = Tuple<double,string>;
+	using NotatedEdge = Tuple<PointD,PointD,IEnumerable<Tuple<double,string>>,IEnumerable<Tuple<double,string>>>;
+
 	[System.ComponentModel.ToolboxItem(true)]
 	public class BlueprintParallelStatePainter : DrawingArea {
 		
@@ -33,7 +37,7 @@ namespace ParallelVisualizer {
 		public const double LineDelta = 10.0d;
 		public const double AlgorithmRadius = 37.0d;
 		private readonly Dictionary<ParallelAlgorithm,PointD> positions = new Dictionary<ParallelAlgorithm,PointD>();
-		private readonly ParallelSimulation ps;
+		private SimulatorResult sr = null;
 		private ParallelAlgorithm hoverAlgo = null;
 		private double time;
 		private readonly Rectangle NoteRectangle = new Rectangle(1.5d*Offset2, 1.5d*Offset2, 300.0d, 450.0d);
@@ -41,6 +45,15 @@ namespace ParallelVisualizer {
 		internal double Time {
 			set {
 				this.time = value;
+			}
+		}
+		public SimulatorResult SimulatorResult {
+			get {
+				return this.sr;
+			}
+			set {
+				this.sr = value;
+				this.QueueDraw();
 			}
 		}
 		public ParallelAlgorithm HoverAlgo {
@@ -55,28 +68,13 @@ namespace ParallelVisualizer {
 			}
 		}
 		
-		public BlueprintParallelStatePainter (ParallelSimulation ps) {
+		public BlueprintParallelStatePainter () {
 			// Insert initialization code here.
-			this.ps = ps;
 			this.Reload();
 			this.AddEvents((int)Gdk.EventMask.PointerMotionMask);
 		}
 		
 		public void Reload () {
-			double gamma = 2.0d*Math.PI/ps.Algorithms.Count;
-			int i = 0;
-			foreach(ParallelAlgorithm pa in this.ps.Algorithms) {
-				if(!this.positions.ContainsKey(pa)) {
-					RelativePosition rp = ps.GetRelativePosition(pa);
-					if(rp != null) {
-						this.positions.Add(pa, new PointD(rp.X, rp.Y));
-					}
-					else {
-						this.positions.Add(pa, new PointD(0.5d+0.375d*Math.Sin(i*gamma), 0.5d+0.375d*Math.Cos(i*gamma)));
-					}
-				}
-				i++;
-			}
 			this.Repaint(null, null);
 		}
 		public void Repaint (object s, EventArgs e) {
@@ -114,6 +112,35 @@ namespace ParallelVisualizer {
 			this.GdkWindow.GetSize(out w, out h);
 			Context ctx = Gdk.CairoHelper.Create(this.GdkWindow);
 			ctx.FillRule = FillRule.EvenOdd;
+			this.paintBackground(ctx, w, h);
+			if(this.sr != null) {
+				this.paintNodes(ctx, w, h, this.sr.GetNodes());
+				this.PaintEdges(ctx, w, h, this.sr.GetEdges(this.time));
+			}
+			/*
+			if(this.hoverAlgo != null) {
+				ctx.Rectangle(this.NoteRectangle);
+				ctx.Color = new Color(1.0d, 1.0d, 1.0d);
+				ctx.Fill();
+				ctx.Save();
+				ctx.Translate(this.NoteRectangle.X, this.NoteRectangle.Y);
+				ctx.Color = new Color(0.0d, 0.0d, 0.0d);
+				this.hoverAlgo.PaintState(ctx);
+				ctx.Restore();
+			}
+			/*ctx.MoveTo(1.5d*Offset2+40, Offset2);
+			ctx.RelLineTo(0.0d, 30.0d);
+			ctx.Arc(1.5d*Offset2+25, 1.5d*Offset2+20.0d, 15.0d, 0.0d, Math.PI);
+			ctx.RelLineTo(0.0d, -1.5d*Offset2-20.0d);
+			ctx.Color = new Color(0.0d, 0.0d, 0.0d);
+			ctx.LineWidth = 5.0d;
+			ctx.Stroke();*/
+			((IDisposable)ctx.Target).Dispose();
+			((IDisposable)ctx).Dispose();
+			return true;
+		}
+
+		private void paintBackground (Context ctx, int w, int h) {
 			ctx.Color = BlueprintStyle.BluePrint;
 			ctx.Rectangle(0.0d, 0.0d, w, h);
 			ctx.Fill();
@@ -140,9 +167,12 @@ namespace ParallelVisualizer {
 				ctx.RelLineTo(w-2.0d*Offset2, 0.0d);
 				ctx.Stroke();
 			}
+		}
+
+		private void paintNodes (Context ctx, int w, int h, IEnumerable<Node> nodes) {
 			ctx.LineWidth = 2.0d;
-			foreach(KeyValuePair<ParallelAlgorithm, PointD> kvp in this.positions) {
-				PointD abs = new PointD(kvp.Value.X*w, kvp.Value.Y*h);
+			foreach(Node node in nodes) {
+				PointD abs = new PointD(node.Item2.X*w, node.Item2.Y*h);
 				ctx.Arc(abs.X, abs.Y, AlgorithmRadius, 0.0d, 2.0d*Math.PI);
 				ctx.ClosePath();
 				ctx.NewSubPath();
@@ -154,21 +184,24 @@ namespace ParallelVisualizer {
 			ctx.FillPreserve();
 			ctx.Color = BlueprintStyle.HardWhite;
 			ctx.Stroke();
-			foreach(KeyValuePair<ParallelAlgorithm, PointD> kvp in this.positions) {
-				PointD abs = new PointD(kvp.Value.X*w, kvp.Value.Y*h);
-				TextExtents te = ctx.TextExtents(kvp.Key.Name);
-				ctx.MoveTo(abs.X-0.5d*te.Width, abs.Y+0.5d*te.Height);
-				ctx.ShowText(kvp.Key.Name);
+			double r_2;
+			foreach(Node node in nodes) {
+				PointD abs = new PointD(node.Item2.X*w, node.Item2.Y*h);
+				TextExtents te = ctx.TextExtents(node.Item1);
+				r_2 = (AlgorithmRadius-BlueprintStyle.Thickness)/Math.Sqrt(te.Width*te.Width+te.Height*te.Height);
+				ctx.Save();
+				ctx.MoveTo(abs.X-r_2*te.Width, abs.Y+r_2*te.Height);
+				ctx.Scale(2.0d*r_2, 2.0d*r_2);
+				ctx.ShowText(node.Item1);
+				ctx.Restore();
 			}
+		}
+
+		private void PaintEdges (Context ctx, int w, int h, IEnumerable<NotatedEdge> edges) {
 			PointD pc, pd;
-			double tm = this.time%1.0d;
-			foreach(Edge e in this.ps.Edges) {
-				PointD pa = new PointD(this.positions[e.Node1].X, this.positions[e.Node1].Y);
-				pa.X *= w;
-				pa.Y *= h;
-				PointD pb = new PointD(this.positions[e.Node2].X, this.positions[e.Node2].Y);
-				pb.X *= w;
-				pb.Y *= h;
+			foreach(NotatedEdge edge in edges) {
+				PointD pa = new PointD(w*edge.Item1.X, h*edge.Item1.Y);
+				PointD pb = new PointD(w*edge.Item2.X, h*edge.Item2.Y);
 				Utils.CutTowardsCenter(pa, pb, AlgorithmRadius, out pc, out pd);
 				double dxr = pc.X-pd.X;
 				double dyr = pc.Y-pd.Y;
@@ -179,8 +212,8 @@ namespace ParallelVisualizer {
 				ctx.Save();
 				ctx.Translate(pc.X, pc.Y);
 				ctx.Rotate(Math.Atan2(pb.Y-pa.Y, pb.X-pa.X));
-				double v = tm/e.Delay;
-				foreach(Tuple<double,string> msg in e.GetUpwardsMessages()) {
+				double v = 0.0d;//double v = tm/e.Delay;
+				foreach(EdgeNotation msg in edge.Item3) {
 					TextExtents te = ctx.TextExtents(msg.Item2);
 					ctx.MoveTo((msg.Item1+v)*(r-te.XAdvance), te.Height+2.0d);
 					ctx.ShowText(msg.Item2);
@@ -189,33 +222,13 @@ namespace ParallelVisualizer {
 				ctx.Save();
 				ctx.Translate(pd.X, pd.Y);
 				ctx.Rotate(Math.Atan2(pa.Y-pb.Y, pa.X-pb.X));
-				foreach(Tuple<double, string> msg in e.GetDownwardsMessages()) {
+				foreach(EdgeNotation msg in edge.Item4) {
 					TextExtents te = ctx.TextExtents(msg.Item2);
 					ctx.MoveTo((msg.Item1+v)*(r-te.XAdvance), te.Height+2.0d);
 					ctx.ShowText(msg.Item2);
 				}
 				ctx.Restore();
 			}
-			if(this.hoverAlgo != null) {
-				ctx.Rectangle(this.NoteRectangle);
-				ctx.Color = new Color(1.0d, 1.0d, 1.0d);
-				ctx.Fill();
-				ctx.Save();
-				ctx.Translate(this.NoteRectangle.X, this.NoteRectangle.Y);
-				ctx.Color = new Color(0.0d, 0.0d, 0.0d);
-				this.hoverAlgo.PaintState(ctx);
-				ctx.Restore();
-			}
-			/*ctx.MoveTo(1.5d*Offset2+40, Offset2);
-			ctx.RelLineTo(0.0d, 30.0d);
-			ctx.Arc(1.5d*Offset2+25, 1.5d*Offset2+20.0d, 15.0d, 0.0d, Math.PI);
-			ctx.RelLineTo(0.0d, -1.5d*Offset2-20.0d);
-			ctx.Color = new Color(0.0d, 0.0d, 0.0d);
-			ctx.LineWidth = 5.0d;
-			ctx.Stroke();*/
-			((IDisposable)ctx.Target).Dispose();
-			((IDisposable)ctx).Dispose();
-			return true;
 		}
 
 		protected override void OnSizeAllocated (Gdk.Rectangle allocation) {

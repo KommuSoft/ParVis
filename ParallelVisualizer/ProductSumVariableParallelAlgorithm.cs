@@ -83,7 +83,10 @@ namespace ParallelVisualizer {
 			}
 			return res;
 		}
-		
+
+		public override PointD MeasureStateSize (Cairo.Context ctx) {
+			return new PointD(200.0d, 100.0d);
+		}
 		
 		public override void PaintState (Context ctx) {
 			IEnumerable<Tuple<int,VectorMessage>> peek = this.PeekMessagesGeneric<VectorMessage>(this.NeighbourIds);

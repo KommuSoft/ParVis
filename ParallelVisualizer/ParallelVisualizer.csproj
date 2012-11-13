@@ -62,6 +62,7 @@
     <Compile Include="MailboxAlgorithm.cs" />
     <Compile Include="ProductSumFactorParallelAlgorithm.cs" />
     <Compile Include="GraphicsUtils.cs" />
+    <Compile Include="SimulatorResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -87,6 +88,9 @@
       <Visible>False</Visible>
     </None>
     <None Include="MailboxParallelAlgorithm.cs">
+      <Visible>False</Visible>
+    </None>
+    <None Include="ProductSumParallelAlgorithm.cs">
       <Visible>False</Visible>
     </None>
   </ItemGroup>

@@ -104,6 +104,9 @@ namespace ParallelVisualizer {
 			while(!this.HasReceivedMessagesGeneric<VectorMessage>(this.HigherIds)) {
 				yield return 0x00;
 			}
+			if(this.LowerIds.Count() <= 0) {
+				this.NewChapter();
+			}
 			yield return 0;
 			foreach(ParallelAlgorithm pa in this.LowerNeighbours) {
 				this.SendMessage(new VectorMessage(this, pa, this.calculateVector(pa.Id)));
@@ -146,7 +149,10 @@ namespace ParallelVisualizer {
 			}
 			return res;
 		}
-		
+
+		public override PointD MeasureStateSize (Cairo.Context ctx) {
+			return new PointD(200.0d, 100.0d);
+		}
 		
 		public override void PaintState (Context ctx) {
 			IEnumerable<Tuple<int,VectorMessage>> peek = this.PeekMessagesGeneric<VectorMessage>(this.NeighbourIds);

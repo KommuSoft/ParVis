@@ -83,11 +83,11 @@ namespace ParallelVisualizer {
 			tb.Add(new SeparatorToolItem());
 			tb.Add(tb_play);
 			tb.Add(tb_pause);
-			this.bpsp = new BlueprintParallelStatePainter(this.ss.Simulator);
+			this.bpsp = new BlueprintParallelStatePainter();
 			this.bm = new BlueprintMediabar();
 			this.bm.CurrentChanged += HandleBmhandleCurrentChanged;
 			this.bm.CurrentChanged += this.bpsp.RepaintEdges;
-			this.bs = new BlueprintTabControl();
+			this.bs = new BlueprintTabControl(1, 1, 10);
 			vb.PackStart(mb, false, false, 0x00);
 			vb.PackStart(tb, false, false, 0x00);
 			vb.PackStart(this.bpsp, true, true, 0x00);
@@ -100,8 +100,9 @@ namespace ParallelVisualizer {
 		}
 
 		void HandleBmhandleCurrentChanged (object sender, EventArgs e) {
-			double current = this.bm.Current;
-			this.ss.Simulator.ForwardTo((int)Math.Floor(current));
+			//double current = this.bm.Current;
+			//this.ss.Simulator.ForwardTo((int)Math.Floor(current));
+			//this.bpsp.
 			this.bpsp.Time = this.bm.Current;
 		}
 		
@@ -120,6 +121,9 @@ namespace ParallelVisualizer {
 			if(result == (int)ResponseType.Ok) {
 				try {
 					ss.ReadConfigFile(fcd.Filename);
+					SimulatorResult sr = ss.Simulator.CollectResults();
+					this.bs.SetMinCurrentMax(1, 1, sr.ChapterCount);
+					this.bpsp.SimulatorResult = sr;
 				}
 				catch(Exception ex) {
 					MessageDialog md = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Error, ButtonsType.Ok, true, ex.Message);

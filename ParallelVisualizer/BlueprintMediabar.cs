@@ -59,6 +59,7 @@ namespace ParallelVisualizer {
 			}
 			set {
 				this.current = Math.Max(this.min, Math.Min(max, value));
+				this.handleCurrentChanged();
 				this.QueueDraw();
 			}
 		}
@@ -91,23 +92,46 @@ namespace ParallelVisualizer {
 		
 		public BlueprintMediabar () {
 			// Insert initialization code here.
-			this.AddEvents((int)(Gdk.EventMask.PointerMotionMask|Gdk.EventMask.ButtonPressMask));
+			this.AddEvents((int)(Gdk.EventMask.PointerMotionMask|Gdk.EventMask.ButtonPressMask|Gdk.EventMask.ButtonReleaseMask));
 		}
 		protected override bool OnMotionNotifyEvent (Gdk.EventMotion evnt) {
 			double x = evnt.X, y = evnt.Y;
-			if(y >= 1 && y <= 33 && ((x >= Offset && x <= Offset+32) || (x >= xtickS && x <= xtickE))) {
-				this.GdkWindow.Cursor = new Gdk.Cursor(Gdk.CursorType.Hand1);
+			if(this.mode == MediaMode.Seek) {
+				int w, h;
+				this.GdkWindow.GetSize(out w, out h);
+				double xb = 2*Offset+36.0d;
+				double wb = w-Offset-xb-4.0d;
+				this.Current = (x-xb)*(max-min)/wb+min;
 			}
 			else {
-				this.GdkWindow.Cursor = new Gdk.Cursor(Gdk.CursorType.Arrow);
+				if(y >= 1 && y <= 33 && ((x >= Offset && x <= Offset+32) || (x >= xtickS && x <= xtickE))) {
+					this.GdkWindow.Cursor = new Gdk.Cursor(Gdk.CursorType.Hand1);
+				}
+				else {
+					this.GdkWindow.Cursor = new Gdk.Cursor(Gdk.CursorType.Arrow);
+				}
 			}
 			return base.OnMotionNotifyEvent(evnt);
+		}
+		protected override bool OnButtonReleaseEvent (Gdk.EventButton evnt) {
+			if(this.Mode == MediaMode.Seek) {
+				this.Mode = MediaMode.Pause;
+			}
+			return base.OnButtonReleaseEvent(evnt);
 		}
 		protected override bool OnButtonPressEvent (Gdk.EventButton ev) {
 			// Insert button press handling code here.
 			double x = ev.X, y = ev.Y;
-			if(x >= Offset && x <= Offset+32 && y >= 1 && y <= 33) {
+			int w, h;
+			this.GdkWindow.GetSize(out w, out h);
+			double xb = 2*Offset+36.0d;
+			double wb = w-Offset-xb-4.0d;
+			double xbt = xb+wb*(current-min)/(max-min)-4.0d;
+			if(x >= Offset && x <= Offset+32 && (int)this.Mode <= 0x01) {
 				this.Mode = (MediaMode)(0x01-this.Mode);
+			}
+			else if(x >= xbt && x <= xbt+8.0d) {
+				this.Mode = MediaMode.Seek;
 			}
 			return base.OnButtonPressEvent(ev);
 		}
@@ -117,7 +141,7 @@ namespace ParallelVisualizer {
 			}
 		}
 		private bool updateCurrent () {
-			if(this.mode == MediaMode.Pause) {
+			if(this.mode != MediaMode.Play) {
 				return false;
 			}
 			else {
@@ -153,15 +177,15 @@ namespace ParallelVisualizer {
 			double xbt = wb*(current-min)/(max-min)-4.0d;
 			ctx.Fill();
 			switch(this.mode) {
-				case MediaMode.Pause:
-					ctx.MoveTo(Offset, 1.0d);
-					ctx.RelLineTo(32.0d, 16.0d);
-					ctx.RelLineTo(-32.0d, 16.0d);
-					ctx.ClosePath();
-					break;
 				case MediaMode.Play:
 					ctx.Rectangle(Offset+2, 1.0d, 8.0d, 32.0d);
 					ctx.Rectangle(Offset+18, 1.0d, 8.0d, 32.0d);
+					ctx.ClosePath();
+					break;
+				default:
+					ctx.MoveTo(Offset, 1.0d);
+					ctx.RelLineTo(32.0d, 16.0d);
+					ctx.RelLineTo(-32.0d, 16.0d);
 					ctx.ClosePath();
 					break;
 			}

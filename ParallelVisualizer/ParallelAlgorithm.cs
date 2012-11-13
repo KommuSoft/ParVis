@@ -105,6 +105,8 @@ namespace ParallelVisualizer {
 		
 		public abstract IEnumerable<int> Steps ();
 		
+		public abstract PointD MeasureStateSize (Context ctx);
+
 		public abstract void PaintState (Context ctx);
 
 		protected internal abstract void ReciveMessage (Message message);
@@ -121,8 +123,7 @@ namespace ParallelVisualizer {
 			if(receiver == this) {
 				this.ReciveMessage(message);
 			}
-			else
-			if(this.edges.TryGetValue(receiver, out e)) {
+			else if(this.edges.TryGetValue(receiver, out e)) {
 				e.RouteMessage(message);
 			}
 			else {

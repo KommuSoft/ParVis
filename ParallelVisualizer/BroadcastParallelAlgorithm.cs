@@ -16,6 +16,10 @@ namespace ParallelVisualizer {
 		public override void PaintState (Cairo.Context ctx) {
 		
 		}
+
+		public override Cairo.PointD MeasureStateSize (Cairo.Context ctx) {
+			return new Cairo.PointD(0.0d, 0.0d);
+		}
 		
 		protected override internal void ReciveMessage (Message message) {
 			

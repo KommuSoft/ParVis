@@ -24,7 +24,8 @@ namespace ParallelVisualizer {
 	
 	public enum MediaMode : byte {
 		Pause = 0x00,
-		Play = 0x01
+		Play = 0x01,
+		Seek = 0x02
 	}
 	
 }

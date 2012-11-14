@@ -32,7 +32,6 @@ namespace ParallelVisualizer {
 		private readonly Dictionary<ParallelAlgorithm,RelativePosition> relativePositions = new Dictionary<ParallelAlgorithm, RelativePosition>();
 		private readonly Dictionary<ParallelAlgorithm,string[]> initArgs = new Dictionary<ParallelAlgorithm, string[]>();
 		private int time = 0;
-		private bool initialized = false;
 		private int maxTime = 1024;
 		private bool newChapter = false;
 		

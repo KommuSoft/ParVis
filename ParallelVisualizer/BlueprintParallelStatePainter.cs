@@ -34,13 +34,14 @@ namespace ParallelVisualizer {
 		
 		public const double Offset = 10.0d;
 		public const double Offset2 = Offset+BlueprintStyle.Thickness;
+		public const double Offset3 = Offset2+BlueprintStyle.Thickness;
+		public const double Offset4 = Offset3+BlueprintStyle.Thickness;
 		public const double LineDelta = 10.0d;
 		public const double AlgorithmRadius = 37.0d;
-		private readonly Dictionary<ParallelAlgorithm,PointD> positions = new Dictionary<ParallelAlgorithm,PointD>();
 		private SimulatorResult sr = null;
-		private ParallelAlgorithm hoverAlgo = null;
 		private double time;
-		private readonly Rectangle NoteRectangle = new Rectangle(1.5d*Offset2, 1.5d*Offset2, 300.0d, 450.0d);
+		private int selectedIndex = -1;
+		private readonly List<PointD> nodeCenters = new List<PointD>();
 
 		internal double Time {
 			set {
@@ -54,17 +55,6 @@ namespace ParallelVisualizer {
 			set {
 				this.sr = value;
 				this.QueueDraw();
-			}
-		}
-		public ParallelAlgorithm HoverAlgo {
-			get {
-				return this.hoverAlgo;
-			}
-			set {
-				if(value != this.hoverAlgo) {
-					this.hoverAlgo = value;
-					this.QueueDrawArea((int)Math.Floor(NoteRectangle.X), (int)Math.Floor(NoteRectangle.Y), (int)Math.Ceiling(NoteRectangle.Width)+1, (int)Math.Ceiling(NoteRectangle.Height)+1);
-				}
 			}
 		}
 		
@@ -85,18 +75,22 @@ namespace ParallelVisualizer {
 		}
 
 		protected override bool OnMotionNotifyEvent (Gdk.EventMotion evnt) {
-			double x = evnt.X, y = evnt.Y;
-			int w, h;
-			this.GdkWindow.GetSize(out w, out h);
-			foreach(KeyValuePair<ParallelAlgorithm,PointD> kvp in positions) {
-				double dx = kvp.Value.X*w-x;
-				double dy = kvp.Value.Y*h-y;
+			double dx, dy;
+			int i = 0;
+			int res = -1;
+			foreach(PointD center in this.nodeCenters) {
+				dx = center.X-evnt.X;
+				dy = center.Y-evnt.Y;
 				if(dx*dx+dy*dy <= AlgorithmRadius*AlgorithmRadius) {
-					this.HoverAlgo = kvp.Key;
-					return base.OnMotionNotifyEvent(evnt);
+					res = i;
+					break;
 				}
+				i++;
 			}
-			this.HoverAlgo = null;
+			if(res != this.selectedIndex) {
+				this.selectedIndex = res;
+				this.QueueDraw();
+			}
 			return base.OnMotionNotifyEvent(evnt);
 		}
 
@@ -116,6 +110,36 @@ namespace ParallelVisualizer {
 			if(this.sr != null) {
 				this.paintNodes(ctx, w, h, this.sr.GetNodes());
 				this.PaintEdges(ctx, w, h, this.sr.GetEdges(this.time));
+				if(this.selectedIndex != -1) {
+					ImageSurface sf = sr.GetSurface(this.selectedIndex, (int)Math.Floor(this.time));
+					ctx.Rectangle(Offset3, Offset3, sf.Width, sf.Height);
+					ctx.Color = new Color(0.99d, 0.94d, 0.68d);
+					ctx.Fill();
+					ctx.Save();
+					ctx.Translate(Offset3, Offset3);
+					ctx.Source = new SurfacePattern(sf);
+					ctx.Paint();
+					ctx.Translate(0.0d, sf.Height);
+					ctx.Pattern = BlueprintStyle.ShadowPatternDown;
+					ctx.Rectangle(10.0d, 0.0d, sf.Width-10.0d, 10.0d);
+					ctx.Fill();
+					ctx.Translate(sf.Width, 0.0d);
+					ctx.Pattern = BlueprintStyle.ShadowPatternDownRight;
+					ctx.Rectangle(0.0d, 0.0d, 10.0d, 10.0d);
+					ctx.Fill();
+					ctx.Translate(0.0d, -sf.Height);
+					ctx.Pattern = BlueprintStyle.ShadowPatternRight;
+					ctx.Rectangle(0.0d, 10.0d, 10.0d, sf.Height-10.0d);
+					ctx.Fill();
+					ctx.Restore();
+					/*ctx.MoveTo(sf.Width+Offset2, Offset4);
+					ctx.RelLineTo(0.0d, 30.0d);
+					ctx.Arc(sf.Width+Offset2-7.5d, Offset4+30.0d, 7.5d, 0.0d, Math.PI);
+					ctx.RelLineTo(0.0d, -Offset4-30.0d);
+					ctx.Color = new Color(0.0d, 0.0d, 0.0d);
+					ctx.LineWidth = 5.0d;
+					ctx.Stroke();*/
+				}
 			}
 			/*
 			if(this.hoverAlgo != null) {
@@ -127,14 +151,7 @@ namespace ParallelVisualizer {
 				ctx.Color = new Color(0.0d, 0.0d, 0.0d);
 				this.hoverAlgo.PaintState(ctx);
 				ctx.Restore();
-			}
-			/*ctx.MoveTo(1.5d*Offset2+40, Offset2);
-			ctx.RelLineTo(0.0d, 30.0d);
-			ctx.Arc(1.5d*Offset2+25, 1.5d*Offset2+20.0d, 15.0d, 0.0d, Math.PI);
-			ctx.RelLineTo(0.0d, -1.5d*Offset2-20.0d);
-			ctx.Color = new Color(0.0d, 0.0d, 0.0d);
-			ctx.LineWidth = 5.0d;
-			ctx.Stroke();*/
+			}*/
 			((IDisposable)ctx.Target).Dispose();
 			((IDisposable)ctx).Dispose();
 			return true;
@@ -184,9 +201,11 @@ namespace ParallelVisualizer {
 			ctx.FillPreserve();
 			ctx.Color = BlueprintStyle.HardWhite;
 			ctx.Stroke();
-			double r_2;
+			double r_2, dx, dy;
+			this.nodeCenters.Clear();
 			foreach(Node node in nodes) {
 				PointD abs = new PointD(node.Item2.X*w, node.Item2.Y*h);
+				this.nodeCenters.Add(abs);
 				TextExtents te = ctx.TextExtents(node.Item1);
 				r_2 = (AlgorithmRadius-BlueprintStyle.Thickness)/Math.Sqrt(te.Width*te.Width+te.Height*te.Height);
 				ctx.Save();

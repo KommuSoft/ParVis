@@ -31,6 +31,7 @@ namespace ParallelVisualizer {
 		private int current = 1;
 		private const double shaft = 0.25d;
 		private double flapWidth = 1.0d;
+		private event EventHandler currentChanged;
 		
 		public int Min {
 			get {
@@ -50,6 +51,14 @@ namespace ParallelVisualizer {
 				this.QueueDraw();
 			}
 		}
+		public event EventHandler CurrentChanged {
+			add {
+				this.currentChanged += value;
+			}
+			remove {
+				this.currentChanged -= value;
+			}
+		}
 		public int Current {
 			get {
 				return this.current;
@@ -65,6 +74,7 @@ namespace ParallelVisualizer {
 					this.QueueDrawArea((int)Math.Floor(xm), 0x00, (int)Math.Ceiling(xM), h);
 					getBoundsFromIndex(this.current, out xm, out xM);
 					this.QueueDrawArea((int)Math.Floor(xm), 0x00, (int)Math.Ceiling(xM), h);
+					this.handleCurrentChanged();
 				}
 			}
 		}
@@ -73,13 +83,14 @@ namespace ParallelVisualizer {
 			// Insert initialization code here.
 			this.AddEvents((int)(Gdk.EventMask.PointerMotionMask|Gdk.EventMask.ButtonPressMask));
 		}
-		public BlueprintTabControl (int min, int current, int max) {
+		public BlueprintTabControl (int min, int current, int max) : this() {
 			this.SetMinCurrentMax(min, current, max);
 		}
 		public void SetMinCurrentMax (int min, int current, int max) {
 			this.min = min;
 			this.max = Math.Max(min, max);
 			this.current = Math.Max(this.min, Math.Min(current, this.max));
+			this.handleCurrentChanged();
 			this.QueueDraw();
 		}
 		protected override bool OnButtonPressEvent (Gdk.EventButton ev) {
@@ -113,6 +124,14 @@ namespace ParallelVisualizer {
 					return -1;
 				}
 			}
+		}
+		private void handleCurrentChanged () {
+			this.OnCurrentChanged(EventArgs.Empty);
+			if(this.currentChanged != null) {
+				this.currentChanged(this, EventArgs.Empty);
+			}
+		}
+		protected virtual void OnCurrentChanged (EventArgs e) {
 		}
 		private void getBoundsFromIndex (int index, out double xm, out double xM) {
 			xm = Offset+(index-min)*(1.0d+shaft)*flapWidth;

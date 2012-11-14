@@ -25,14 +25,14 @@ using Cairo;
 namespace ParallelVisualizer {
 
 	using Node = Tuple<string,PointD>;
-	using NodeData = Tuple<string,PointD,List<Surface>>;
+	using NodeData = Tuple<string,PointD,List<ImageSurface>>;
 	using EdgeData = Tuple<int,int,Dictionary<int,List<Tuple<double,string>>>,Dictionary<int,List<Tuple<double,string>>>>;
 	using EdgeNotation = Tuple<double,string>;
 	using NotatedEdge = Tuple<PointD,PointD,IEnumerable<Tuple<double,string>>,IEnumerable<Tuple<double,string>>>;
 
 	public class SimulatorResult {
 
-		private readonly List<NodeData> namepos = new List<NodeData>();
+		private readonly List<NodeData> nodes = new List<NodeData>();
 		private readonly List<EdgeData> edges = new List<EdgeData>();
 		private readonly Dictionary<string,int> accessNodes = new Dictionary<string,int>();
 		private readonly Dictionary<int,int> accessEdges = new Dictionary<int,int>();
@@ -57,16 +57,16 @@ namespace ParallelVisualizer {
 		}
 
 		public void AddNode (string name, PointD relpo) {
-			this.accessNodes.Add(name, this.namepos.Count);
-			this.namepos.Add(new NodeData(name, relpo, new List<Surface>()));
+			this.accessNodes.Add(name, this.nodes.Count);
+			this.nodes.Add(new NodeData(name, relpo, new List<ImageSurface>()));
 		}
 		public void AddEdge (string frm, string to, int delay) {
 			int ft = accessNodes[frm]<<16|accessNodes[to];
 			this.accessEdges.Add(ft, this.edges.Count);
 			this.edges.Add(new EdgeData(ft, delay, new Dictionary<int,List<EdgeNotation>>(), new Dictionary<int,List<EdgeNotation>>()));
 		}
-		public void AddNodeState (string node, Surface sf) {
-			this.namepos[this.accessNodes[node]].Item3.Add(sf);
+		public void AddNodeState (string node, ImageSurface sf) {
+			this.nodes[this.accessNodes[node]].Item3.Add(sf);
 		}
 		public void AddEdgeMessages (string frm, string to, int time, IEnumerable<EdgeNotation> downwards, IEnumerable<EdgeNotation> upwards) {
 			int ei = accessEdges[accessNodes[frm]<<16|accessNodes[to]];
@@ -88,21 +88,25 @@ namespace ParallelVisualizer {
 			end = chapters[chapter+1];
 		}
 
+		public ImageSurface GetSurface (int node, int time) {
+			return this.nodes[node].Item3[time];
+		}
+
 		public void Cleanup (int endTime) {
 			this.chapters.Add(endTime);
 			this.endTime = endTime;
 			this.accessNodes.Clear();
-			double gamma = 2.0d*Math.PI/namepos.Count;
-			for(int i = 0; i < namepos.Count; i++) {
-				if(this.namepos[i].Item2.X < 0.0d) {
-					this.namepos[i].Item2.X = 0.5d+0.375d*Math.Sin(i*gamma);
-					this.namepos[i].Item2.Y = 0.5d+0.375d*Math.Cos(i*gamma);
+			double gamma = 2.0d*Math.PI/nodes.Count;
+			for(int i = 0; i < nodes.Count; i++) {
+				if(this.nodes[i].Item2.X < 0.0d) {
+					this.nodes[i].Item2.X = 0.5d+0.375d*Math.Sin(i*gamma);
+					this.nodes[i].Item2.Y = 0.5d+0.375d*Math.Cos(i*gamma);
 				}
 			}
 		}
 
 		public IEnumerable<Node> GetNodes () {
-			foreach(NodeData n in namepos) {
+			foreach(NodeData n in nodes) {
 				yield return new Node(n.Item1, n.Item2);
 			}
 		}
@@ -122,7 +126,7 @@ namespace ParallelVisualizer {
 				if(!ed.Item4.TryGetValue(ti, out ib)) {
 					ib = null;
 				}
-				yield return new NotatedEdge(namepos[low].Item2, namepos[high].Item2, TweakMessages(ia, v), TweakMessages(ib, v));
+				yield return new NotatedEdge(nodes[low].Item2, nodes[high].Item2, TweakMessages(ia, v), TweakMessages(ib, v));
 			}
 		}
 		public IEnumerable<EdgeNotation> TweakMessages (IEnumerable<EdgeNotation> source, double tweak) {

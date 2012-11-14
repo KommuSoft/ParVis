@@ -36,6 +36,11 @@ namespace ParallelVisualizer {
 				return @"Test";
 			}
 		}
+		public string[] PossibleValues {
+			get {
+				return this.possibleValues;
+			}
+		}
 		
 		public override void Setup (params string[] args) {
 			if(args != null && args.Length > 0) {
@@ -84,8 +89,8 @@ namespace ParallelVisualizer {
 			return res;
 		}
 
-		public override PointD MeasureStateSize (Cairo.Context ctx) {
-			return new PointD(200.0d, 100.0d);
+		public override PointD MeasureStateSize (Context ctx) {
+			return new PointD(200.0d, 500.0d);
 		}
 		
 		public override void PaintState (Context ctx) {

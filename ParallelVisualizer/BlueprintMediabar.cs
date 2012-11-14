@@ -27,7 +27,7 @@ namespace ParallelVisualizer {
 		public const double Offset = 10.0d;
 		public const double Epsilon = 1e-6;
 		private double min = 0.0d;
-		private double max = 60.0d;
+		private double max = 1.0d;
 		private double current = 0.0d;
 		private double speed = 1.0d;
 		private double xtickS = 0.0d;
@@ -94,6 +94,13 @@ namespace ParallelVisualizer {
 			// Insert initialization code here.
 			this.AddEvents((int)(Gdk.EventMask.PointerMotionMask|Gdk.EventMask.ButtonPressMask|Gdk.EventMask.ButtonReleaseMask));
 		}
+		public void SetMinCurrentMax (double min, double current, double max) {
+			this.min = min;
+			this.max = Math.Max(max, this.min);
+			this.current = Math.Min(max, Math.Max(min, current));
+			this.handleCurrentChanged();
+			this.QueueDraw();
+		}
 		protected override bool OnMotionNotifyEvent (Gdk.EventMotion evnt) {
 			double x = evnt.X, y = evnt.Y;
 			if(this.mode == MediaMode.Seek) {
@@ -101,7 +108,7 @@ namespace ParallelVisualizer {
 				this.GdkWindow.GetSize(out w, out h);
 				double xb = 2*Offset+36.0d;
 				double wb = w-Offset-xb-4.0d;
-				this.Current = (x-xb)*(max-min)/wb+min;
+				this.Current = Math.Min(Math.Max(this.min, (x-xb)*(max-min)/wb+min), this.max-Epsilon);
 			}
 			else {
 				if(y >= 1 && y <= 33 && ((x >= Offset && x <= Offset+32) || (x >= xtickS && x <= xtickE))) {
@@ -121,7 +128,7 @@ namespace ParallelVisualizer {
 		}
 		protected override bool OnButtonPressEvent (Gdk.EventButton ev) {
 			// Insert button press handling code here.
-			double x = ev.X, y = ev.Y;
+			double x = ev.X;
 			int w, h;
 			this.GdkWindow.GetSize(out w, out h);
 			double xb = 2*Offset+36.0d;
@@ -146,8 +153,8 @@ namespace ParallelVisualizer {
 			}
 			else {
 				this.current += 0.04d*this.speed;
-				if(this.current >= this.max) {
-					this.current = this.max;
+				if(this.current >= this.max-Epsilon) {
+					this.current = this.max-Epsilon;
 					this.Mode = MediaMode.Pause;
 				}
 				this.QueueDraw();
@@ -199,7 +206,7 @@ namespace ParallelVisualizer {
 				ctx.MoveTo(xb, 16.0d);
 				ctx.RelLineTo(xbt, 0.0d);
 			}
-			if(xb+xbt+8 < w-Offset) {
+			if(xb+xbt+8 < w-Offset-4.0d) {
 				ctx.MoveTo(xb+xbt+8.0d, 16.0d);
 				ctx.LineTo(w-Offset-4.0d, 16.0d);
 			}

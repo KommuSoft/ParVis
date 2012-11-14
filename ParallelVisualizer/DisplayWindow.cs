@@ -30,6 +30,7 @@ namespace ParallelVisualizer {
 		private BlueprintParallelStatePainter bpsp;
 		private BlueprintTabControl bs;
 		private BlueprintMediabar bm;
+		private SimulatorResult sr;
 		private SimulationServer ss = new SimulationServer();
 		private VBox vb = new VBox(false, 0);
 		
@@ -87,7 +88,9 @@ namespace ParallelVisualizer {
 			this.bm = new BlueprintMediabar();
 			this.bm.CurrentChanged += HandleBmhandleCurrentChanged;
 			this.bm.CurrentChanged += this.bpsp.RepaintEdges;
-			this.bs = new BlueprintTabControl(1, 1, 10);
+			this.bs = new BlueprintTabControl(1, 1, 1);
+			this.bs.CurrentChanged += HandleBshandleCurrentChanged;
+			;
 			vb.PackStart(mb, false, false, 0x00);
 			vb.PackStart(tb, false, false, 0x00);
 			vb.PackStart(this.bpsp, true, true, 0x00);
@@ -97,6 +100,14 @@ namespace ParallelVisualizer {
 			this.Resize(640, 480);
 			this.Add(vb);
 			this.ShowAll();
+		}
+
+		void HandleBshandleCurrentChanged (object sender, EventArgs e) {
+			if(this.sr != null) {
+				int m, M;
+				this.sr.GetBounds(this.bs.Current-1, out m, out M);
+				this.bm.SetMinCurrentMax(m, m, M);
+			}
 		}
 
 		void HandleBmhandleCurrentChanged (object sender, EventArgs e) {
@@ -121,11 +132,12 @@ namespace ParallelVisualizer {
 			if(result == (int)ResponseType.Ok) {
 				try {
 					ss.ReadConfigFile(fcd.Filename);
-					SimulatorResult sr = ss.Simulator.CollectResults();
-					this.bs.SetMinCurrentMax(1, 1, sr.ChapterCount);
+					this.sr = ss.Simulator.CollectResults();
+					this.bs.SetMinCurrentMax(1, 1, this.sr.ChapterCount);
 					this.bpsp.SimulatorResult = sr;
 				}
 				catch(Exception ex) {
+					Console.Error.WriteLine(ex);
 					MessageDialog md = new MessageDialog(this, DialogFlags.DestroyWithParent, MessageType.Error, ButtonsType.Ok, true, ex.Message);
 					md.Run();
 					md.Destroy();

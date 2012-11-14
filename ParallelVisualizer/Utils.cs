@@ -90,7 +90,20 @@ namespace ParallelVisualizer {
 				yield return f(ea.Current, eb.Current);
 			}
 		}
+		public static IEnumerable<int[]> ConfigurationsMemory (int[] dims) {
+			int n = dims.Length;
+			int[] indices = new int[n];
+			while(indices[0] < dims[0]) {
+				yield return indices;
+				indices[n-1]++;
+				int i = n-1;
+				while(i > 0 && indices[i] >= dims[i]) {
+					indices[i--] = 0;
+					indices[i]++;
+				}
+			}
 		
+		}
 	}
-}
 
+}
